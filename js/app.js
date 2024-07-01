@@ -61,7 +61,12 @@ function generateFolder() {
             });
         })
         .catch(error => {
-            console.error("Hubo un error al obtener los datos:", error);
+             if (error.message === 'Failed to fetch') {
+                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+            } else {
+                showAlert("No ahi carpetas creadas", 'warning');
+            }
+            console.error('Fetch error:', error);
         });
 }
 
@@ -234,7 +239,14 @@ function initFolderUpload() {
         })
         .then(response => response.json())
         .then(data => {
-            showAlert(data.Message, 'success');
+            console.log(data.Message);
+            if (data.StatusCode == 201) {
+                showAlert(data.Message, 'success');
+            }
+
+            if (data.StatusCode != 201) {
+                showAlert(data.Message, 'warning');
+            }
             console.log(data);
             root.innerHTML = '';
             generateFolder();
@@ -259,12 +271,10 @@ function initFolderUpdate() {
 
     if (!folderName) {
         showAlert('Please enter a folder name', 'warning');
-        return;
     }
 
     if (!selectedRadio) {
         showAlert('Please select a folder status', 'warning');
-        return;
     }
 
     const formData = {
@@ -281,19 +291,18 @@ function initFolderUpdate() {
         },
         body: JSON.stringify(formData),
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.Name.join(', '));
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        showAlert(data.Message, 'success');
-        console.dir(data);
+        if (data.StatusCode == 200) {
+            showAlert(data.Message, 'success');
+        }
+        if (data.StatusCode == 409) {
+            showAlert(data.Message, 'warning');
+        }
+        
         root.innerHTML = '';
         generateFolder();
+        console.dir(data);
     })
     .catch(error => {
         showAlert(`Folder update failed: ${error.message}`, 'error');
