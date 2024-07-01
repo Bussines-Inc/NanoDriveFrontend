@@ -116,10 +116,18 @@
 
     <section class="home">
         <header class=" contentHeader p-3 d-flex justify-content-between align-items-center ps-5">
-            <div class="contentBtnUpload ms-4">
-                <a type="button" data-bs-toggle="modal" data-bs-target="#drangAndDrop"><i
-                        class='bx bx-plus me-3'></i><span class="textUpload">Add File</span></a>
+            <div class="upload d-flex flex-row">
+                <div class="contentBtnUploadFile ms-4">
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#drangAndDropFile"><i
+                            class='bx bx-plus me-3'></i><span class="textUploadFile">Add File</span></a>                        
+                </div>
+                <div class="contentBtnUploadFolder ms-4">
+                    <a type="button" data-bs-toggle="modal" data-bs-target="#CreateFolder"><i
+                        class='bx bx-plus me-3'></i><span class="textUploadFolder">Add Folder</span></a>
+                </div>
+
             </div>
+                            
             <div class="profilePhotoText d-flex  align-items-center">
                 <div class="me-3">10 / 140 Gb</div>
                 <i class="bi bi-person-circle"></i>
@@ -148,13 +156,13 @@
         </div>
 
 
-        <div class="modal fade upload" id="drangAndDrop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog upload modal-dialog-centered">
-                <div class="modal-content upload">
+        <div class="modal fade UploadFile" id="drangAndDropFile" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog UploadFile modal-dialog-centered">
+                <div class="modal-content UploadFile">
 
-                    <div class="modal-header upload">
-                        <div class="modal-logo upload">
-                            <span class="logo-circle upload">
+                    <div class="modal-header UploadFile">
+                        <div class="modal-logo UploadFile">
+                            <span class="logo-circle UploadFile">
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512"
                                     height="419.116" viewBox="0 0 512 419.116">
                                     <defs>
@@ -171,7 +179,7 @@
                             </span>
                         </div>
 
-                        <button class="btn-close upload" data-bs-dismiss="modal">
+                        <button class="btn-close UploadFile" data-bs-dismiss="modal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="none" d="M0 0h24v24H0V0z" />
                                 <path
@@ -181,13 +189,13 @@
                         </button>
                     </div>
                     
-                    <div class="modal-body upload">
-                        <h2 class="modal-title upload">Upload a file</h2>
-                        <p class="modal-description upload">Attach the file below</p>
-                        <button class="upload-area upload">
+                    <div class="modal-body UploadFile">
+                        <h2 class="modal-title UploadFile">Upload a file</h2>
+                        <p class="modal-description UploadFile">Attach the file below</p>
+                        <button class="UploadFile-area UploadFile">
                             <input type="file" name="file" id="file" hidden/>
                             <label for="file">
-                                <span class="upload-area-icon upload">
+                                <span class="UploadFile-area-icon UploadFile">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         width="340.531" height="419.116" viewBox="0 0 340.531 419.116">
                                         <g id="files-new" clip-path="url(#clip-files-new)">
@@ -197,24 +205,60 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="upload-area-title upload">Drag file(s) here to upload.</span>
-                                <span class="upload-area-description upload">
+                                <span class="UploadFile-area-title UploadFile">Drag file(s) here to Upload File.</span>
+                                <span class="UploadFile-area-description UploadFile">
                                     Alternatively, you can select a file by <br /><strong>clicking here</strong>
                                 </span>
                             </label>
                         </button>
                     </div>
-                    <div class="modal-footer upload">
-                        <button class="btn-secondary upload" data-bs-dismiss="modal">Cancel</button>
-                        <button class="btn-primary upload" id="uploadBtn" onclick="initFileUpload()">Upload File</button>
+                    <div class="formbold-input-radio-wrapper ps-4 pe-4">
+                        <label for="jobtitle" class="formbold-form-label"> Where do you save this
+                            files?</label>
+
+                        <div class="formbold-radio-flex">
+
+                            <div class="formbold-radio-group">
+                                <label class="formbold-radio-label">
+                                    <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                        id="statusFolder" value="Active">
+                                    Dashboard
+                                    <span class="formbold-radio-checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="formbold-radio-group">
+                            <label class="formbold-radio-label">
+                                <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                    id="statusFolder" value="Private">
+                                Private
+                                <span class="formbold-radio-checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="formbold-radio-group">
+                            <label class="formbold-radio-label">
+                                <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                    id="statusFolder" value="Favorite">
+                                Favorities
+                                <span class="formbold-radio-checkmark"></span>
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer UploadFile">
+                        <button class="btn-secondary UploadFile" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn-primary UploadFile" id="uploadBtn" onclick="initFileUpload()">Upload File</button>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        <!-- Modal -->
-        <div class="modal fade " id="EditFolder" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <!-- Modal(Create Folder)-->
+        <div class="modal fade " id="CreateFolder" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -237,39 +281,117 @@
 
                                     <div class="formbold-input-radio-wrapper">
                                         <label for="jobtitle" class="formbold-form-label"> Where do you save this
-                                            folder?</label>
-
+                                            files?</label>
+                
                                         <div class="formbold-radio-flex">
-
+                
                                             <div class="formbold-radio-group">
                                                 <label class="formbold-radio-label">
                                                     <input class="formbold-input-radio" type="radio" name="statusFolder"
-                                                        id="statusFolder">
+                                                        id="statusFolder" value="Active">
                                                     Dashboard
                                                     <span class="formbold-radio-checkmark"></span>
                                                 </label>
                                             </div>
                                         </div>
-
+                
                                         <div class="formbold-radio-group">
                                             <label class="formbold-radio-label">
                                                 <input class="formbold-input-radio" type="radio" name="statusFolder"
-                                                    id="statusFolder">
+                                                    id="statusFolder" value="Private">
                                                 Private
                                                 <span class="formbold-radio-checkmark"></span>
                                             </label>
                                         </div>
-
+                
                                         <div class="formbold-radio-group">
                                             <label class="formbold-radio-label">
                                                 <input class="formbold-input-radio" type="radio" name="statusFolder"
-                                                    id="statusFolder">
+                                                    id="statusFolder" value="Favorite">
                                                 Favorities
                                                 <span class="formbold-radio-checkmark"></span>
                                             </label>
                                         </div>
-
+                
                                     </div>
+                
+
+                                    <div>
+                                        <label for="message" class="formbold-form-label"> Description </label>
+                                        <textarea rows="6" name="descripcion" id="descripcionfolder"
+                                            placeholder="Write here..." class="formbold-form-input"></textarea>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn formbold-btn" onclick="initFolderUpload()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal(Edit Folder)-->
+        <div class="modal fade " id="EditFolder" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Folder</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="formbold-main-wrapper">
+                            <!-- Author: FormBold Team -->
+                            <!-- Learn More: https://formbold.com -->
+                            <div class="formbold-form-wrapper">
+                                <form action="https://formbold.com/s/FORM_ID" method="POST">
+                                    <div class="formbold-input-flex">
+                                        <div>
+                                            <label for="firstname" class="formbold-form-label"> Name Folder </label>
+                                            <input type="text" name="foldername" id="foldername" placeholder="Images"
+                                                class="formbold-form-input foldername" autocomplete="off"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="formbold-input-radio-wrapper">
+                                        <label for="jobtitle" class="formbold-form-label"> Where do you save this
+                                            files?</label>
+                
+                                        <div class="formbold-radio-flex">
+                
+                                            <div class="formbold-radio-group">
+                                                <label class="formbold-radio-label">
+                                                    <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                                        id="statusFolder" value="Active">
+                                                    Dashboard
+                                                    <span class="formbold-radio-checkmark"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                
+                                        <div class="formbold-radio-group">
+                                            <label class="formbold-radio-label">
+                                                <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                                    id="statusFolder" value="Private">
+                                                Private
+                                                <span class="formbold-radio-checkmark"></span>
+                                            </label>
+                                        </div>
+                
+                                        <div class="formbold-radio-group">
+                                            <label class="formbold-radio-label">
+                                                <input class="formbold-input-radio" type="radio" name="statusFolder"
+                                                    id="statusFolder" value="Favorite">
+                                                Favorities
+                                                <span class="formbold-radio-checkmark"></span>
+                                            </label>
+                                        </div>
+                
+                                    </div>
+                
 
                                     <div>
                                         <label for="message" class="formbold-form-label"> Description </label>
@@ -283,7 +405,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn formbold-btn">Save changes</button>
+                        <button type="button" class="btn formbold-btn updateBtn" data-bs-dismiss="modal" onclick="initFolderUpdate()">Save changes</button>
                     </div>
                 </div>
             </div>

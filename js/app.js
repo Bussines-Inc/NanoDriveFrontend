@@ -1,3 +1,9 @@
+document.addEventListener("DOMContentLoaded", () => {
+    initMode();
+    initEventListeners();
+    generateFolder();
+});
+
 function initMode() {
     const body = document.querySelector('body');
     const modeText = body.querySelector(".mode-text");
@@ -30,10 +36,6 @@ function initEventListeners() {
     modeSwitch.addEventListener("click", () => {
         toggleDarkMode(body, modeText);
     });
-
-    window.onclick = function (event) {
-        closeDropdownOnClickOutside(event);
-    };
 }
 
 function toggleDarkMode(body, modeText) {
@@ -49,7 +51,8 @@ function toggleDarkMode(body, modeText) {
 }
 
 function generateFolder() {
-    var root = document.querySelector(".containerCard");
+    const root = document.querySelector(".containerCard");
+
     fetch(`http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`)
         .then(response => response.json())
         .then(data => {
@@ -95,6 +98,10 @@ function createFolderCard(element, root) {
         </div>
     `;
 
+    // Evento para el botón de edición
+    div.querySelector('.btnEdit').addEventListener('click', () => {
+        sessionStorage.setItem("ID", element.Id)
+    });
     // Eventos para los botones (ejemplo: eliminar, favoritos, privado)
     div.querySelector('.iconCardTrash').addEventListener('click', () => {
         deleteFolder(element.Id);
@@ -111,6 +118,7 @@ function createFolderCard(element, root) {
     root.appendChild(div);
 }
 
+
 function deleteFolder(folderId) {
     fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
         method: 'PATCH',
@@ -121,11 +129,11 @@ function deleteFolder(folderId) {
     .then(response => response.json())
     .then(data => {
         document.getElementById(`folder-${folderId}`).remove();
-        showAlert("Carpeta eliminada exitosamente", 'success');
+        showAlert(data.Message, 'success');
     })
     .catch(error => {
-        showAlert("Hubo un error al eliminar la carpeta. Por favor, intenta nuevamente.", 'error');
-        console.error("Hubo un error al obtener los datos:", error);
+        showAlert('Error deleting folder', 'error');
+        console.error('Error:', error);
     });
 }
 
@@ -139,11 +147,11 @@ function addFavourites(folderId) {
     .then(response => response.json())
     .then(data => {
         document.getElementById(`folder-${folderId}`).remove();
-        showAlert("Carpeta añadida a favoritos", 'success');
+        showAlert(data.Message, 'success');
     })
     .catch(error => {
-        showAlert("Hubo un error al añadir la carpeta a favoritos. Por favor, intenta nuevamente.", 'error');
-        console.error("Hubo un error al obtener los datos:", error);
+        showAlert('Error adding to favorites', 'error');
+        console.error('Error:', error);
     });
 }
 
@@ -156,47 +164,146 @@ function addPrivate(folderId) {
     })
     .then(response => response.json())
     .then(data => {
+        document.getElementById(`folder-${folderId}`).remove();
         showAlert(data.Message, 'success');
     })
-    .catch(data => {
-        showAlert(data.Message, 'error');
+    .catch(error => {
+        showAlert('Error marking as private', 'error');
+        console.error('Error:', error);
     });
 }
 
 function initFileUpload() {
+    const root = document.querySelector(".containerCard");
     const fileInput = document.getElementById('file');
-    const uploadBtn = document.getElementById('uploadBtn');
+    const file = fileInput.files[0];
+    const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
 
-    uploadBtn.addEventListener('click', () => {
-        const file = fileInput.files[0];
+    if (file && selectedRadio) {
+        const formData = {
+            name: file.name,
+            type: file.type,
+            size: file.size.toString(),
+            status: selectedRadio.value,
+            folderId: 154 // Update this as needed
+        };
 
-        if (file) {
-            console.log(file);
-            console.log(file.name);
-            console.log(file.size);
-            console.log(file.type);
-            console.log('Your file description here');
+        fetch('http://localhost:5246/api/files', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            showAlert(data.Message, 'success');
+            root.innerHTML = ' ';
+            generateFolder();
+        })
+        .catch(error => {
+            showAlert('File upload failed', 'error');
+            console.error('Error:', error);
+        });
+    } else {
+        showAlert('Please select a file to upload and an option', 'warning');
+    }
+}
 
-            // fetch('http://localhost:5246/folder', {
-            //     method: 'POST',
-            //     body: formData,
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     showAlert('File uploaded successfully', 'success');
-            // })
-            // .catch(error => {
-            //     showAlert('File upload failed', 'error');
-            //     console.error('Error:', error);
-            // });
-        } else {
-            showAlert('Please select a file to upload', 'warning');
+function initFolderUpload() {
+    const root = document.querySelector(".containerCard");
+    const folderName = document.getElementById("foldername").value;
+    const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
+    const event = new Date().toISOString();
+
+    if (folderName && selectedRadio) {
+        const formData = {
+            name: folderName,
+            dateCreate: event,
+            status: selectedRadio.value,
+            // parentFolder_Id: 68,
+            userId: 1 // Actualiza esto según sea necesario
+        };
+
+        fetch('http://localhost:5246/api/folder', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            showAlert(data.Message, 'success');
+            console.log(data);
+            root.innerHTML = '';
+            generateFolder();
+        })
+        .catch(error => {
+            showAlert(data.Message, 'error');
+            console.error('Error:', error);
+        });
+    } else {
+        showAlert('Please enter a folder name and select an option', 'warning');
+    }
+}
+
+
+function initFolderUpdate() {
+    const root = document.querySelector(".containerCard");
+    const folderNameElement = document.querySelector(".foldername");
+    const folderName = folderNameElement ? folderNameElement.value : '';
+    const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
+    const event = new Date().toISOString();
+    let folderIdLocal = sessionStorage.getItem("ID");
+
+    if (!folderName) {
+        showAlert('Please enter a folder name', 'warning');
+        return;
+    }
+
+    if (!selectedRadio) {
+        showAlert('Please select a folder status', 'warning');
+        return;
+    }
+
+    const formData = {
+        Name: folderName.toString(),
+        DateCreate: event,
+        Status: selectedRadio.value,
+        UserId: 1
+    };
+
+    fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
+        method: 'PUT',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.Name.join(', '));
+            });
         }
+        return response.json();
+    })
+    .then(data => {
+        showAlert(data.Message, 'success');
+        console.dir(data);
+        root.innerHTML = '';
+        generateFolder();
+    })
+    .catch(error => {
+        showAlert(`Folder update failed: ${error.message}`, 'error');
     });
 }
 
+
+
 function showAlert(message, type) {
-    var alertClass = '';
+    let alertClass = '';
     switch (type) {
         case 'success':
             alertClass = 'success';
