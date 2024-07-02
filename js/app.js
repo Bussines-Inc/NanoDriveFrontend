@@ -36,6 +36,19 @@ function initEventListeners() {
     modeSwitch.addEventListener("click", () => {
         toggleDarkMode(body, modeText);
     });
+
+    const sortCriteria = document.getElementById("sortCriteria");
+    if (sortCriteria) {
+        sortCriteria.addEventListener("change", () => {
+            const selectedValue = sortCriteria.value;
+            if (selectedValue === "nameAsc" || selectedValue === "nameDesc" || selectedValue === "Size"
+                || selectedValue === "NormalView"
+            ) {
+                orderFolders(selectedValue);
+            }
+    
+        });
+    }
 }
 
 function toggleDarkMode(body, modeText) {
@@ -388,3 +401,42 @@ $('.close-btn').click(function () {
     $('.alert').removeClass("show");
     $('.alert').addClass("hide");
 });
+
+
+//=====================================  ordenar
+function orderFolders(sortType) {
+    let url;
+    switch (sortType) {
+        case "nameAsc":
+            url = `http://localhost:5246/api/folder/asc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "nameDesc":
+            url = `http://localhost:5246/api/folder/desc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "Size":
+            url = `http://localhost:5246/api/folder/files?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "NormalView":
+            url = `http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`;
+            break;
+        default:
+            return;
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const root = document.querySelector(".containerCard");
+            root.innerHTML = ''; // Limpiar el contenido anterior
+            data.Folders.forEach(element => {
+                createFolderCard(element, root);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+            } else {
+                showAlert("No hay carpetas creadas", 'warning');
+            }
+            console.error('Fetch error:', error);
+        });
+}
