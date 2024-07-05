@@ -36,6 +36,19 @@ function initEventListeners() {
     modeSwitch.addEventListener("click", () => {
         toggleDarkMode(body, modeText);
     });
+
+    const sortCriteria = document.getElementById("sortCriteria");
+    if (sortCriteria) {
+        sortCriteria.addEventListener("change", () => {
+            const selectedValue = sortCriteria.value;
+            if (selectedValue === "nameAsc" || selectedValue === "nameDesc" || selectedValue === "Size"
+                || selectedValue === "NormalView"
+            ) {
+                orderFolders(selectedValue);
+            }
+    
+        });
+    }
 }
 
 function toggleDarkMode(body, modeText) {
@@ -61,7 +74,12 @@ function generateFolder() {
             });
         })
         .catch(error => {
-            console.error("Hubo un error al obtener los datos:", error);
+             if (error.message === 'Failed to fetch') {
+                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+            } else {
+                showAlert("No ahi carpetas creadas", 'warning');
+            }
+            console.error('Fetch error:', error);
         });
 }
 
@@ -116,6 +134,33 @@ function createFolderCard(element, root) {
     });
 
     root.appendChild(div);
+}
+
+
+function openFolder(folderId) {
+    fetch(`http://localhost:5246/api/folder/${folderId}/files`)
+        .then(response => response.json())
+        .then(files => {
+            const root = document.querySelector(".containerCard");
+            root.innerHTML = ''; // Limpiar contenido anterior
+            files.forEach(file => {
+                const fileDiv = document.createElement('div');
+                fileDiv.textContent = file.name;
+                fileDiv.className = 'file';
+                root.appendChild(fileDiv);
+            });
+            document.getElementById('foldersView').style.display = 'none';
+            document.getElementById('folderContent').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load folder content');
+        });
+}
+
+function showFolders() {
+    document.getElementById('foldersView').style.display = 'block';
+    document.getElementById('folderContent').style.display = 'none';
 }
 
 
@@ -234,7 +279,14 @@ function initFolderUpload() {
         })
         .then(response => response.json())
         .then(data => {
-            showAlert(data.Message, 'success');
+            console.log(data.Message);
+            if (data.StatusCode == 201) {
+                showAlert(data.Message, 'success');
+            }
+
+            if (data.StatusCode != 201) {
+                showAlert(data.Message, 'warning');
+            }
             console.log(data);
             root.innerHTML = '';
             generateFolder();
@@ -243,9 +295,19 @@ function initFolderUpload() {
             showAlert(data.Message, 'error');
             console.error('Error:', error);
         });
-    } else {
-        showAlert('Please enter a folder name and select an option', 'warning');
-    }
+        }
+        else if (!folderName && !selectedRadio) {
+            showAlert('Folder name cannot be empty and status option', 'warning');
+        }
+        else if (!folderName) {
+            showAlert('Folder name cannot be empty', 'warning');
+        }
+        else if (!selectedRadio) {
+            showAlert('Please select a status option', 'warning');
+        }
+        else {
+            showAlert('Please enter a folder name and select an option', 'warning');
+        }
 }
 
 
@@ -257,50 +319,56 @@ function initFolderUpdate() {
     const event = new Date().toISOString();
     let folderIdLocal = sessionStorage.getItem("ID");
 
-    if (!folderName) {
-        showAlert('Please enter a folder name', 'warning');
-        return;
+
+    if (folderName && selectedRadio) {
+
+        const formData = {
+            Name: folderName.toString(),
+            DateCreate: event,
+            Status: selectedRadio.value,
+            UserId: 1
+        };
+
+        fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.dir(data);
+            if (data.StatusCode == 200) {
+                showAlert(data.Message, 'success');
+                root.innerHTML = '';
+                generateFolder();
+            }
+            if (data.StatusCode == 409) {
+                showAlert(data.Message, 'warning');
+            }
+            console.dir(data);
+        })
+        .catch(error => {
+            showAlert(`Folder update failed: ${error.message}`, 'error');
+        });
     }
-
-    if (!selectedRadio) {
-        showAlert('Please select a folder status', 'warning');
-        return;
+    else if (!folderIdLocal) {
+        showAlert('No folder selected to update', 'warning');
     }
-
-    const formData = {
-        Name: folderName.toString(),
-        DateCreate: event,
-        Status: selectedRadio.value,
-        UserId: 1
-    };
-
-    fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
-        method: 'PUT',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.Name.join(', '));
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        showAlert(data.Message, 'success');
-        console.dir(data);
-        root.innerHTML = '';
-        generateFolder();
-    })
-    .catch(error => {
-        showAlert(`Folder update failed: ${error.message}`, 'error');
-    });
+    else if (!folderName && !selectedRadio) {
+        showAlert('Folder name cannot be empty and status option', 'warning');
+    }
+    else if (!folderName) {
+        showAlert('Folder name cannot be empty', 'warning');
+    }
+    else if (!selectedRadio) {
+        showAlert('Please select a status option', 'warning');
+    }
+    else {
+        showAlert('Please enter a folder name and select an option', 'warning');
+    }
 }
-
-
 
 function showAlert(message, type) {
     let alertClass = '';
@@ -333,3 +401,42 @@ $('.close-btn').click(function () {
     $('.alert').removeClass("show");
     $('.alert').addClass("hide");
 });
+
+
+//=====================================  ordenar
+function orderFolders(sortType) {
+    let url;
+    switch (sortType) {
+        case "nameAsc":
+            url = `http://localhost:5246/api/folder/asc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "nameDesc":
+            url = `http://localhost:5246/api/folder/desc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "Size":
+            url = `http://localhost:5246/api/folder/files?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "NormalView":
+            url = `http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`;
+            break;
+        default:
+            return;
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const root = document.querySelector(".containerCard");
+            root.innerHTML = ''; // Limpiar el contenido anterior
+            data.Folders.forEach(element => {
+                createFolderCard(element, root);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+            } else {
+                showAlert("No hay carpetas creadas", 'warning');
+            }
+            console.error('Fetch error:', error);
+        });
+}
