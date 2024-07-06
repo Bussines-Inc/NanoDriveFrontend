@@ -95,7 +95,7 @@ function createFolderCard(element, root) {
                 </div>
             </div>
             <div class="card-footer pt-2 pb-1 d-flex justify-content-between align-items-center">
-                <p class="card-footerText ps-2">${element.Size} ${element.UnitSize}</p>
+                <p class="card-footerText ps-2">${returnFileSize(element.Size).value} ${element.UnitSize}</p>
                 <div class="btn-group d-flex justify-content-center align-items-center">
                     <a type="button" title="Eliminar carpeta" class="text-center">
                         <i class="bi bi-trash2-fill me-3 iconCard iconCardTrash"></i>
@@ -237,9 +237,12 @@ async function initFileUpload() {
     const fileInput = document.getElementById('file');
     const files = fileInput.files;
 
+    
     if (files.length > 0 && selectedRadio) {
         for (const file of files) {
             
+            console.log(file);
+            console.log(returnFileSize(file.size).value);
             console.log(file.size);
             console.log(typeof(file.size));
 
@@ -247,10 +250,12 @@ async function initFileUpload() {
                 name: file.name,
                 type: file.type,
                 size: file.size,
-                unitsize: file.size,
+                unitsize: returnFileSize(file.size).unit,
                 status: selectedRadio.value,
                 folderId: folderIdLocal
             };
+
+            console.log(formData);
 
             fetch('http://localhost:5246/api/files', {
                 method: 'POST',
@@ -429,6 +434,7 @@ $('.close-btn').click(function () {
 
 function validFileType(file) {
     const fileTypes = [
+        // Imágenes
         "image/apng",
         "image/bmp",
         "image/gif",
@@ -439,7 +445,39 @@ function validFileType(file) {
         "image/tiff",
         "image/webp",
         "image/x-icon",
-    ];
+        // Documentos
+        "application/pdf",
+        "application/msword", // .doc
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+        "application/vnd.ms-excel", // .xls
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+        "application/vnd.ms-powerpoint", // .ppt
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+        "text/plain",
+        "text/csv",
+        "text/html",
+        "application/rtf",
+        // Audio
+        "audio/midi",
+        "audio/mpeg",
+        "audio/webm",
+        "audio/ogg",
+        "audio/wav",
+        "audio/aac",
+        // Video
+        "video/webm",
+        "video/ogg",
+        "video/mp4",
+        "video/x-msvideo",
+        // Otros
+        "application/zip",
+        "application/x-rar-compressed",
+        "application/x-7z-compressed",
+        "application/x-tar",
+        "application/x-bzip",
+        "application/x-bzip2",
+        "application/java-archive", // .jar
+    ];    
 
     return fileTypes.includes(file.type);
 }

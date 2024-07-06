@@ -102,7 +102,7 @@ function createFolderCard(element, root) {
                 </div>
             </div>
             <div class="card-footer pt-2 pb-1 d-flex justify-content-between align-items-center">
-                <p class="card-footerText ps-2">${element.Size}</p>
+                <p class="card-footerText ps-2">${returnFileSize(element.Size).value} ${element.UnitSize} </p>
                 <div class="btn-group d-flex justify-content-center align-items-center">
                     <a type="button" title="Eliminar carpeta" class="text-center">
                         <i class="bi bi-trash2-fill me-3 iconCard iconCardTrash"></i>
@@ -225,42 +225,92 @@ function addPrivate(folderId) {
     });
 }
 
-function initFileUpload() {
-    const root = document.querySelector(".containerCard");
+function previewFiles() {
     const fileInput = document.getElementById('file');
-    const file = fileInput.files[0];
-    const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
-    
-    if (file && selectedRadio) {
-        const formData = {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            status: selectedRadio.value,
-            folderId: 154 // Update this as needed
-        };
+    const preview = document.querySelector(".preview");
+    const curFiles = fileInput.files;
 
-        fetch('http://localhost:5246/api/files', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            showAlert(data.Message, 'success');
-            root.innerHTML = ' ';
-            generateFolder();
-        })
-        .catch(error => {
-            showAlert('File upload failed', 'error');
-            console.error('Error:', error);
-        });
+    while (preview.firstChild) {
+        preview.removeChild(preview.firstChild);
+    }
+
+    if (curFiles.length === 0) {
+        const para = document.createElement("p");
+        para.textContent = "No files currently selected for upload";
+        preview.appendChild(para);
     } else {
-        showAlert('Please select a file to upload and an option', 'warning');
+        const list = document.createElement("ol");
+        preview.appendChild(list);
+
+        for (const file of curFiles) {
+            const listItem = document.createElement("li");
+            const para = document.createElement("p");
+            if (validFileType(file)) {
+                para.textContent = `File name: ${file.name}, File size: ${returnFileSize(file.size)}.`;
+                const image = document.createElement("img");
+                image.src = URL.createObjectURL(file);
+                image.alt = image.title = file.name;
+                image.classList.add("img-fluid");
+
+                listItem.appendChild(image);
+                listItem.appendChild(para);
+            } else {
+                para.textContent = `File name ${file.name}: Not a valid file type. Update your selection.`;
+                listItem.appendChild(para);
+            }
+
+            list.appendChild(listItem);
+        }
     }
 }
+
+async function initFileUpload() {
+    const root = document.querySelector(".containerCard");
+    const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
+    let folderIdLocal = sessionStorage.getItem("IdFolder");
+
+    const fileInput = document.getElementById('file');
+    const files = fileInput.files
+
+    console.log(files);
+
+    if (files.length > 0 && selectedRadio) {
+        for (const file of files) {
+            const formData = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                unitsize: returnFileSize(file.size).unit,
+                status: selectedRadio.value,
+                folderId: folderIdLocal
+            };
+
+            console.log(formData);
+
+            const response = await fetch('http://localhost:5246/api/file/upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showAlert('El archivo ha sido subido exitosamente', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showAlert('Error uploading file', 'error');
+                console.error('Error:', data);
+            }
+        }
+    } else {
+        showAlert('No ha seleccionado ningún archivo', 'warning');
+    }
+}
+
 
 function initFolderUpload() {
     const root = document.querySelector(".containerCard");
@@ -419,7 +469,6 @@ function returnFileSize(number) {
         return { value: (number / 1048576).toFixed(1), unit: 'MB' };
     }
 }
-
 
 //=====================================  ordenar
 function orderFolders(sortType) {
