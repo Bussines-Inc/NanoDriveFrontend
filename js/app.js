@@ -1,3 +1,12 @@
+//guardian
+function guardianCheck() {
+    const guardianId = localStorage.getItem("token");
+    if (guardianId == null || guardianId == undefined) {
+        window.location.href = 'Login.html';
+    }
+}
+window.addEventListener("DOMContentLoaded",guardianCheck());
+
 document.addEventListener("DOMContentLoaded", () => {
     initMode();
     initEventListeners();
@@ -38,20 +47,6 @@ function initEventListeners() {
     });
 }
 
-const sortCriteria = document.getElementById("sortCriteria");
-if (sortCriteria) {
-    sortCriteria.addEventListener("change", () => {
-        const selectedValue = sortCriteria.value;
-        if (selectedValue === "nameAsc" || selectedValue === "nameDesc" || selectedValue === "Size"
-            || selectedValue === "NormalView"
-        ) {
-            orderFolders(selectedValue);
-        }
-
-    });
-}
-
-
 function toggleDarkMode(body, modeText) {
     body.classList.toggle("dark");
 
@@ -63,26 +58,56 @@ function toggleDarkMode(body, modeText) {
         localStorage.setItem("dark-mode", "disabled");
     }
 }
-
-function generateFolder() {
+//pipe
+function generateFolder(sortCriteria) {
     const root = document.querySelector(".containerCard");
 
-    fetch(`http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`)
+    const authToken = localStorage.getItem('token');
+    const tokenPayload = parseJwt(authToken);
+    const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+    console.log('Fetching folders for userId:', userId);
+
+    fetch(`http://localhost:5246/api/folders/${userId}`)
         .then(response => response.json())
         .then(data => {
+            console.log(data);
+            // Ordenar las carpetas según el criterio seleccionado
+            if (sortCriteria === 'nameAsc') {
+                data.Folders.sort((a, b) => a.Name.localeCompare(b.Name));
+            } else if (sortCriteria === 'nameDesc') {
+                data.Folders.sort((a, b) => b.Name.localeCompare(a.Name));
+            }
+            // Otros criterios de ordenamiento pueden ser implementados aquí
+
+            console.log('Sorted folders:', data.Folders);
+
+            // Limpiar contenedor antes de agregar las nuevas carpetas ordenadas
+            root.innerHTML = '';
+
+            // Crear las tarjetas de carpetas ordenadas
             data.Folders.forEach(element => {
                 createFolderCard(element, root);
             });
         })
         .catch(error => {
-             if (error.message === 'Failed to fetch') {
+            if (error.message === 'Failed to fetch') {
                 showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
             } else {
-                showAlert("No ahi carpetas creadas", 'warning');
+                showAlert("No hay carpetas creadas", 'warning');
             }
             console.error('Fetch error:', error);
         });
 }
+
+function handleSortCriteriaChange() {
+    // Obtener el criterio seleccionado del select
+    const sortCriteria = document.getElementById('sortCriteria').value;
+
+    // Llamar a generateFolder con el criterio seleccionado
+    generateFolder(sortCriteria);
+}
+
 
 function createFolderCard(element, root) {
     var div = document.createElement('div');
@@ -419,42 +444,32 @@ function returnFileSize(number) {
         return { value: (number / 1048576).toFixed(1), unit: 'MB' };
     }
 }
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
 
-
-//=====================================  ordenar
-function orderFolders(sortType) {
-    let url;
-    switch (sortType) {
-        case "nameAsc":
-            url = `http://localhost:5246/api/folder/asc?pageNumber=${1}&pageSize=${20}`;
-            break;
-        case "nameDesc":
-            url = `http://localhost:5246/api/folder/desc?pageNumber=${1}&pageSize=${20}`;
-            break;
-        case "Size":
-            url = `http://localhost:5246/api/folder/files?pageNumber=${1}&pageSize=${20}`;
-            break;
-        case "NormalView":
-            url = `http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`;
-            break;
-        default:
-            return;
-    }
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const root = document.querySelector(".containerCard");
-            root.innerHTML = ''; // Limpiar el contenido anterior
-            data.Folders.forEach(element => {
-                createFolderCard(element, root);
-            });
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
-            } else {
-                showAlert("No hay carpetas creadas", 'warning');
-            }
-            console.error('Fetch error:', error);
-        });
+    return JSON.parse(jsonPayload);
 }
+
+const authToken = localStorage.getItem('token');
+const tokenPayload = parseJwt(authToken);
+
+// El userId está en "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+console.log(userId)
+
+function logout ()
+{
+    localStorage.removeItem('token');
+    console.log('Logged out');
+    window.location.href = 'Login.html'; // Redirigir a la página de inicio de sesión después de cerrar sesión
+}
+
+document.getElementById('logout').onclick = logout;
+
+console.log(document.getElementById('logout'));
+

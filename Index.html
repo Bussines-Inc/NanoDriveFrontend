@@ -91,7 +91,7 @@
 
             <div class="bottom-content">
                 <li class="">
-                    <a href="#">
+                    <a href="#" id="logout">
                         <i class='bx bx-log-out icon'></i>
                         <span class="text nav-text">Logout</span>
                     </a>
@@ -141,12 +141,12 @@
                     <h1>My Cloud</h1>
                     <div class="d-flex align-items-center mb-3">
                         <span>Sort by:</span>
-                        <select class="form-select w-auto ms-3" id="sortCriteria">
+                        <select class="form-select w-auto ms-3" id="sortCriteria" onchange="handleSortCriteriaChange()">
                             <option disabled>Select one</option>
                             <option value="NormalView">Date</option>
                             <option value="nameAsc">Names A-Z</option>
                             <option value="nameDesc">Names Z-A</option>
-                            <option value="Size">Number of files</option>
+                            <!-- <option value="Size">Number of files</option> -->
                         </select>
                     </div>
                     <div class="row containerCard g-3">
