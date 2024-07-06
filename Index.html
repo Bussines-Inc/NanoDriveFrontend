@@ -141,12 +141,12 @@
                     <h1>My Cloud</h1>
                     <div class="d-flex align-items-center mb-3">
                         <span>Sort by:</span>
-                        <select class="form-select w-auto ms-3">
-                            <option value="0">Select...</option>
-                            <option value="1">Names A-Z</option>
-                            <option value="2">Names Z-A</option>
-                            <option value="3">Size</option>
-                            <option value="4">Date</option>
+                        <select class="form-select w-auto ms-3" id="sortCriteria">
+                            <option disabled>Select one</option>
+                            <option value="NormalView">Date</option>
+                            <option value="nameAsc">Names A-Z</option>
+                            <option value="nameDesc">Names Z-A</option>
+                            <option value="Size">Number of files</option>
                         </select>
                     </div>
                     <div class="row containerCard g-3">
@@ -296,7 +296,7 @@
                                         </div>
                 
                                         <div class="formbold-radio-group">
-                                            <label class="formbold-radio-label">
+                                            <label classb="formbold-radio-label">
                                                 <input class="formbold-input-radio" type="radio" name="statusFolder"
                                                     id="statusFolder" value="Private">
                                                 Private
@@ -328,7 +328,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn formbold-btn" onclick="initFolderUpload()">Save changes</button>
+                        <button type="submit" class="btn formbold-btn" onclick="initFolderUpload()">Save changes</button>
                     </div>
                 </div>
             </div>

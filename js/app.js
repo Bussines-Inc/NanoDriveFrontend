@@ -38,6 +38,20 @@ function initEventListeners() {
     });
 }
 
+const sortCriteria = document.getElementById("sortCriteria");
+if (sortCriteria) {
+    sortCriteria.addEventListener("change", () => {
+        const selectedValue = sortCriteria.value;
+        if (selectedValue === "nameAsc" || selectedValue === "nameDesc" || selectedValue === "Size"
+            || selectedValue === "NormalView"
+        ) {
+            orderFolders(selectedValue);
+        }
+
+    });
+}
+
+
 function toggleDarkMode(body, modeText) {
     body.classList.toggle("dark");
 
@@ -136,6 +150,26 @@ function createFolderCard(element, root) {
     root.appendChild(div);
 }
 
+function openFolder(folderId) {
+    fetch(`http://localhost:5246/api/folder/${folderId}/files`)
+        .then(response => response.json())
+        .then(files => {
+            const root = document.querySelector(".containerCard");
+            root.innerHTML = ''; // Limpiar contenido anterior
+            files.forEach(file => {
+                const fileDiv = document.createElement('div');
+                fileDiv.textContent = file.name;
+                fileDiv.className = 'file';
+                root.appendChild(fileDiv);
+            });
+            document.getElementById('foldersView').style.display = 'none';
+            document.getElementById('folderContent').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load folder content');
+        });
+}
 
 function deleteFolder(folderId) {
     fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
@@ -384,4 +418,43 @@ function returnFileSize(number) {
     } else if (number >= 1048576) {
         return { value: (number / 1048576).toFixed(1), unit: 'MB' };
     }
+}
+
+
+//=====================================  ordenar
+function orderFolders(sortType) {
+    let url;
+    switch (sortType) {
+        case "nameAsc":
+            url = `http://localhost:5246/api/folder/asc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "nameDesc":
+            url = `http://localhost:5246/api/folder/desc?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "Size":
+            url = `http://localhost:5246/api/folder/files?pageNumber=${1}&pageSize=${20}`;
+            break;
+        case "NormalView":
+            url = `http://localhost:5246/api/folders?pageNumber=${1}&pageSize=${20}`;
+            break;
+        default:
+            return;
+    }
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const root = document.querySelector(".containerCard");
+            root.innerHTML = ''; // Limpiar el contenido anterior
+            data.Folders.forEach(element => {
+                createFolderCard(element, root);
+            });
+        })
+        .catch(error => {
+            if (error.message === 'Failed to fetch') {
+                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+            } else {
+                showAlert("No hay carpetas creadas", 'warning');
+            }
+            console.error('Fetch error:', error);
+        });
 }

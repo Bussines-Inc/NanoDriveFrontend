@@ -1,14 +1,22 @@
 /* Google Font Import - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+<<<<<<< HEAD
 
 * {
+=======
+*{
+>>>>>>> origin/master
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
 
+<<<<<<< HEAD
 :root {
+=======
+:root{
+>>>>>>> origin/master
     /* ===== Colors ===== */
     --body-color: #E4E9F7;
     --sidebar-color: #FFF;
@@ -25,19 +33,31 @@
     --tran-05: all 0.3s ease;
 }
 
+<<<<<<< HEAD
 body {
+=======
+body{
+>>>>>>> origin/master
     min-height: 100vh;
     background-color: var(--body-color);
     transition: var(--tran-05);
     overflow-x: hidden;
 }
 
+<<<<<<< HEAD
 ::selection {
+=======
+::selection{
+>>>>>>> origin/master
     background-color: var(--primary-color);
     color: #fff;
 }
 
+<<<<<<< HEAD
 body.dark {
+=======
+body.dark{
+>>>>>>> origin/master
     --body-color: #18191a;
     --sidebar-color: #242526;
     --primary-color: #3a3b3c;
@@ -48,7 +68,11 @@ body.dark {
 }
 
 /* ===== Sidebar ===== */
+<<<<<<< HEAD
 .sidebar {
+=======
+ .sidebar{
+>>>>>>> origin/master
     position: fixed;
     top: 0;
     left: 0;
@@ -57,6 +81,7 @@ body.dark {
     padding: 10px 14px;
     background: var(--sidebar-color);
     transition: var(--tran-05);
+<<<<<<< HEAD
     z-index: 100;
 }
 
@@ -70,6 +95,18 @@ body.dark {
 
 /* ===== Reusable code - Here ===== */
 .sidebar li {
+=======
+    z-index: 100;  
+}
+.sidebar.close{
+    width: 88px;
+}
+.menu-links {
+    padding: 0;
+}
+/* ===== Reusable code - Here ===== */
+.sidebar li{
+>>>>>>> origin/master
     height: 50px;
     list-style: none;
     display: flex;
@@ -78,12 +115,20 @@ body.dark {
 }
 
 .sidebar header .image,
+<<<<<<< HEAD
 .sidebar .icon {
+=======
+.sidebar .icon{
+>>>>>>> origin/master
     min-width: 60px;
     border-radius: 6px;
 }
 
+<<<<<<< HEAD
 .sidebar .icon {
+=======
+.sidebar .icon{
+>>>>>>> origin/master
     min-width: 60px;
     border-radius: 6px;
     height: 100%;
@@ -94,17 +139,26 @@ body.dark {
 }
 
 .sidebar .text,
+<<<<<<< HEAD
 .sidebar .icon {
+=======
+.sidebar .icon{
+>>>>>>> origin/master
     color: var(--text-color);
     transition: var(--tran-03);
 }
 
+<<<<<<< HEAD
 .sidebar .text {
+=======
+.sidebar .text{
+>>>>>>> origin/master
     font-size: 17px;
     font-weight: 500;
     white-space: nowrap;
     opacity: 1;
 }
+<<<<<<< HEAD
 
 .sidebar.close .text {
     opacity: 0;
@@ -126,31 +180,66 @@ body.dark {
     flex-direction: column;
 }
 
+=======
+.sidebar.close .text{
+    opacity: 0;
+}
+/* =========================== */
+
+.sidebar header{
+    position: relative;
+}
+
+.sidebar header .image-text{
+    display: flex;
+    align-items: center;
+}
+.sidebar header .logo-text{
+    display: flex;
+    flex-direction: column;
+}
+>>>>>>> origin/master
 header .image-text .name {
     margin-top: 2px;
     font-size: 18px;
     font-weight: 600;
 }
 
+<<<<<<< HEAD
 header .image-text .profession {
+=======
+header .image-text .profession{
+>>>>>>> origin/master
     font-size: 16px;
     margin-top: -2px;
     display: block;
 }
 
+<<<<<<< HEAD
 .sidebar header .image {
+=======
+.sidebar header .image{
+>>>>>>> origin/master
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+<<<<<<< HEAD
 .sidebar header .image img {
+=======
+.sidebar header .image img{
+>>>>>>> origin/master
     width: 65px;
     margin-right: 11px;
     border-radius: 6px;
 }
 
+<<<<<<< HEAD
 .sidebar header .toggle {
+=======
+.sidebar header .toggle{
+>>>>>>> origin/master
     position: absolute;
     top: 50%;
     right: -35px;
@@ -168,6 +257,7 @@ header .image-text .profession {
     transition: var(--tran-05);
 }
 
+<<<<<<< HEAD
 body.dark .sidebar header .toggle {
     color: var(--text-color);
 }
@@ -181,6 +271,21 @@ body.dark .sidebar header .toggle {
 }
 
 .sidebar li a {
+=======
+body.dark .sidebar header .toggle{
+    color: var(--text-color);
+}
+
+.sidebar.close .toggle{
+    transform: translateY(-50%) rotate(0deg);
+}
+
+.sidebar .menu{
+    margin-top: 40px;
+}
+
+.sidebar li a{
+>>>>>>> origin/master
     list-style: none;
     height: 100%;
     background-color: transparent;
@@ -193,6 +298,7 @@ body.dark .sidebar header .toggle {
     transition: var(--tran-03);
 }
 
+<<<<<<< HEAD
 .sidebar li a:hover {
     background-color: var(--primary-color);
 }
@@ -208,29 +314,56 @@ body.dark .sidebar li a:hover .text {
 }
 
 .sidebar .menu-bar {
+=======
+.sidebar li a:hover{
+    background-color: var(--primary-color);
+}
+.sidebar li a:hover .icon,
+.sidebar li a:hover .text{
+    color: var(--sidebar-color);
+}
+body.dark .sidebar li a:hover .icon,
+body.dark .sidebar li a:hover .text{
+    color: var(--text-color);
+}
+
+.sidebar .menu-bar{
+>>>>>>> origin/master
     height: calc(100% - 55px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow-y: scroll;
 }
+<<<<<<< HEAD
 
 .menu-bar::-webkit-scrollbar {
     display: none;
 }
 
 .sidebar .menu-bar .mode {
+=======
+.menu-bar::-webkit-scrollbar{
+    display: none;
+}
+.sidebar .menu-bar .mode{
+>>>>>>> origin/master
     border-radius: 6px;
     background-color: var(--primary-color-light);
     position: relative;
     transition: var(--tran-05);
 }
 
+<<<<<<< HEAD
 .menu-bar .mode .sun-moon {
+=======
+.menu-bar .mode .sun-moon{
+>>>>>>> origin/master
     height: 50px;
     width: 60px;
 }
 
+<<<<<<< HEAD
 .mode .sun-moon i {
     position: absolute;
 }
@@ -248,6 +381,22 @@ body.dark .mode .sun-moon i.moon {
 }
 
 .menu-bar .bottom-content .toggle-switch {
+=======
+.mode .sun-moon i{
+    position: absolute;
+}
+.mode .sun-moon i.sun{
+    opacity: 0;
+}
+body.dark .mode .sun-moon i.sun{
+    opacity: 1;
+}
+body.dark .mode .sun-moon i.moon{
+    opacity: 0;
+}
+
+.menu-bar .bottom-content .toggle-switch{
+>>>>>>> origin/master
     position: absolute;
     right: 0;
     height: 100%;
@@ -258,8 +407,12 @@ body.dark .mode .sun-moon i.moon {
     border-radius: 6px;
     cursor: pointer;
 }
+<<<<<<< HEAD
 
 .toggle-switch .switch {
+=======
+.toggle-switch .switch{
+>>>>>>> origin/master
     position: relative;
     height: 22px;
     width: 40px;
@@ -268,7 +421,11 @@ body.dark .mode .sun-moon i.moon {
     transition: var(--tran-05);
 }
 
+<<<<<<< HEAD
 .switch::before {
+=======
+.switch::before{
+>>>>>>> origin/master
     content: '';
     position: absolute;
     height: 15px;
@@ -281,11 +438,19 @@ body.dark .mode .sun-moon i.moon {
     transition: var(--tran-04);
 }
 
+<<<<<<< HEAD
 body.dark .switch::before {
     left: 20px;
 }
 
 .home {
+=======
+body.dark .switch::before{
+    left: 20px;
+}
+
+.home{
+>>>>>>> origin/master
     position: absolute;
     top: 0;
     top: 0;
@@ -295,21 +460,33 @@ body.dark .switch::before {
     background-color: var(--body-color);
     transition: var(--tran-05);
 }
+<<<<<<< HEAD
 
 .home .text {
+=======
+.home .text{
+>>>>>>> origin/master
     font-size: 30px;
     font-weight: 500;
     color: var(--text-color);
     padding: 12px 60px;
 }
 
+<<<<<<< HEAD
 .sidebar.close~.home {
+=======
+.sidebar.close ~ .home{
+>>>>>>> origin/master
     left: 78px;
     height: 100vh;
     width: calc(100% - 78px);
 }
+<<<<<<< HEAD
 
 body.dark .home .text {
+=======
+body.dark .home .text{
+>>>>>>> origin/master
     color: var(--text-color);
 }
 
@@ -349,6 +526,7 @@ body.dark .home .text {
 .profilePhotoText {
     color: var(--text-color-dark);
 }
+<<<<<<< HEAD
 
 /* ===== Three Buttom ===== */
 
@@ -356,6 +534,14 @@ body.dark .home .text {
     text-shadow: none !important;
     color: var(--text-color) !important;
     padding: 10px;
+=======
+/* ===== Three Buttom ===== */
+
+.showLeft{
+    text-shadow: none !important;
+    color: var(--text-color) !important;
+    padding:10px;
+>>>>>>> origin/master
 }
 
 /* =========================== */
@@ -367,7 +553,10 @@ body.dark .home .text {
     padding: 14px 14px 0px 0px;
     background-color: var(--primary-color-light);
     color: var(--text-color-dark);
+<<<<<<< HEAD
     z-index: 1;
+=======
+>>>>>>> origin/master
 }
 
 
@@ -390,9 +579,14 @@ body.dark .home .text {
     background-color: var(--primary-color-light);
 }
 
+<<<<<<< HEAD
 .bi-file-earmark-text-fill,
 .bi-folder-fill {
     color: #32be8f;
+=======
+.bi-folder-fill {
+    color:  #32be8f;
+>>>>>>> origin/master
     font-size: 3rem;
 }
 
@@ -427,28 +621,43 @@ body.dark .home .text {
 
 .iconCardTrash:hover {
     color: rgb(248, 45, 45);
+<<<<<<< HEAD
     background-color: rgba(248, 45, 45, 0.1);
     /* Añadir un fondo sutil */
     transform: scale(2);
     /* Aumentar el tamaño ligeramente */
+=======
+    background-color: rgba(248, 45, 45, 0.1); /* Añadir un fondo sutil */
+    transform: scale(2); /* Aumentar el tamaño ligeramente */
+>>>>>>> origin/master
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .iconCardStar:hover {
     color: #ffd700;
+<<<<<<< HEAD
     background-color: rgba(255, 215, 0, 0.1);
     /* Añadir un fondo sutil */
     transform: scale(2);
     /* Aumentar el tamaño ligeramente */
+=======
+    background-color: rgba(255, 215, 0, 0.1); /* Añadir un fondo sutil */
+    transform: scale(2); /* Aumentar el tamaño ligeramente */
+>>>>>>> origin/master
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .iconCardLock:hover {
     color: #a9a9a9;
+<<<<<<< HEAD
     background-color: rgba(169, 169, 169, 0.1);
     /* Añadir un fondo sutil */
     transform: scale(2);
     /* Aumentar el tamaño ligeramente */
+=======
+    background-color: rgba(169, 169, 169, 0.1); /* Añadir un fondo sutil */
+    transform: scale(2); /* Aumentar el tamaño ligeramente */
+>>>>>>> origin/master
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
@@ -497,6 +706,7 @@ body.dark .home .text {
     0% {
         transform: translateX(100%);
     }
+<<<<<<< HEAD
 
     40% {
         transform: translateX(-10%);
@@ -506,6 +716,14 @@ body.dark .home .text {
         transform: translateX(0%);
     }
 
+=======
+    40% {
+        transform: translateX(-10%);
+    }
+    80% {
+        transform: translateX(0%);
+    }
+>>>>>>> origin/master
     100% {
         transform: translateX(-10px);
     }
@@ -519,6 +737,7 @@ body.dark .home .text {
     0% {
         transform: translateX(-10px);
     }
+<<<<<<< HEAD
 
     40% {
         transform: translateX(0%);
@@ -528,6 +747,14 @@ body.dark .home .text {
         transform: translateX(-10%);
     }
 
+=======
+    40% {
+        transform: translateX(0%);
+    }
+    80% {
+        transform: translateX(-10%);
+    }
+>>>>>>> origin/master
     100% {
         transform: translateX(100%);
     }
@@ -622,7 +849,12 @@ body.dark .home .text {
 
 /* ============= FORM EDIT ============== */
 
+<<<<<<< HEAD
 .modal-content {
+=======
+.modal-content
+{
+>>>>>>> origin/master
     background: var(--sidebar-color);
     color: var(--text-color-dark);
 }
@@ -632,13 +864,20 @@ body.dark .home .text {
     align-items: center;
     justify-content: center;
     padding: 25px;
+<<<<<<< HEAD
 }
 
 .formbold-form-wrapper {
+=======
+  }
+
+  .formbold-form-wrapper {
+>>>>>>> origin/master
     margin: 0 auto;
     max-width: 550px;
     width: 100%;
     background: var(--sidebar-color);
+<<<<<<< HEAD
 }
 
 .formbold-input-flex {
@@ -662,6 +901,28 @@ body.dark .home .text {
 }
 
 .formbold-radio-label {
+=======
+  }
+
+  .formbold-input-flex {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 15px;
+  }
+  .formbold-input-flex > div {
+    width: 100%;
+  }
+
+  .formbold-input-radio-wrapper {
+    margin-bottom: 28px;
+  }
+  .formbold-radio-flex {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .formbold-radio-label {
+>>>>>>> origin/master
     font-size: 14px;
     line-height: 24px;
     color: var(--text-color-dark);
@@ -672,6 +933,7 @@ body.dark .home .text {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+<<<<<<< HEAD
 }
 
 .formbold-input-radio {
@@ -681,6 +943,15 @@ body.dark .home .text {
 }
 
 .formbold-radio-checkmark {
+=======
+  }
+  .formbold-input-radio {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .formbold-radio-checkmark {
+>>>>>>> origin/master
     position: absolute;
     top: -1px;
     left: 0;
@@ -689,6 +960,7 @@ body.dark .home .text {
     background-color: var(--text-color);
     border: 1px solid #DDE3EC;
     border-radius: 50%;
+<<<<<<< HEAD
 }
 
 .formbold-radio-label .formbold-input-radio:checked~.formbold-radio-checkmark {
@@ -706,6 +978,23 @@ body.dark .home .text {
 }
 
 .formbold-radio-label .formbold-radio-checkmark:after {
+=======
+  }
+  .formbold-radio-label .formbold-input-radio:checked ~ .formbold-radio-checkmark {
+    background-color: var(--primary-color);
+  }
+  .formbold-radio-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  .formbold-radio-label .formbold-input-radio:checked ~ .formbold-radio-checkmark:after {
+    display: block;
+  }
+
+  .formbold-radio-label .formbold-radio-checkmark:after {
+>>>>>>> origin/master
     top: 50%;
     left: 50%;
     width: 10px;
@@ -713,9 +1002,15 @@ body.dark .home .text {
     border-radius: 50%;
     background: #FFFFFF;
     transform: translate(-50%, -50%);
+<<<<<<< HEAD
 }
 
 .formbold-form-input {
+=======
+  }
+
+  .formbold-form-input {
+>>>>>>> origin/master
     width: 100%;
     padding: 13px 22px;
     border-radius: 5px;
@@ -726,6 +1021,7 @@ body.dark .home .text {
     color: var(--text-color-dark);
     outline: none;
     resize: none;
+<<<<<<< HEAD
 }
 
 .formbold-form-input::placeholder {
@@ -738,14 +1034,31 @@ body.dark .home .text {
 }
 
 .formbold-form-label {
+=======
+  }
+  .formbold-form-input::placeholder {
+    color: var(--text-color);
+  }
+  .formbold-form-input:focus {
+    border-color: var(--text-color-dark);
+    box-shadow: 0px 3px 8px var(--primary-color-light);
+  }
+  .formbold-form-label {
+>>>>>>> origin/master
     color: var(--text-color-dark);
     font-size: 14px;
     line-height: 24px;
     display: block;
     margin-bottom: 10px;
+<<<<<<< HEAD
 }
 
 .formbold-btn {
+=======
+  }
+
+  .formbold-btn {
+>>>>>>> origin/master
     text-align: center;
     width: 60%;
     font-size: 16px;
@@ -755,18 +1068,27 @@ body.dark .home .text {
     background-color: var(--text-color-dark);
     color: var(--primary-color-light);
     cursor: pointer;
+<<<<<<< HEAD
 }
 
 .formbold-btn:hover {
     background-color: var(--primary-color-light);
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
 }
+=======
+  }
+  .formbold-btn:hover {
+    background-color: var(--primary-color-light);
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+  }
+>>>>>>> origin/master
 
 /* ======================== */
 
 /* ======== UploadFile FILE ============= */
 
 .modal-header.UploadFile {
+<<<<<<< HEAD
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -786,6 +1108,25 @@ body.dark .home .text {
     svg {
         max-width: 1.5rem;
     }
+=======
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 1.5rem 1.5rem 1rem;
+}
+
+.logo-circle.UploadFile {
+	width: 3.5rem;
+	height: 3.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	background-color: #32be8f;;
+	svg {
+		max-width: 1.5rem;
+	}
+>>>>>>> origin/master
 }
 
 .UploadFile-area input {
@@ -796,6 +1137,7 @@ body.dark .home .text {
 }
 
 .modal-body.UploadFile {
+<<<<<<< HEAD
     padding: 1rem 1.5rem;
 }
 
@@ -913,4 +1255,81 @@ body.dark .home .text {
     align-items: center;
     justify-content: center;
     margin: 0;
+=======
+	padding: 1rem 1.5rem;
+}
+
+.modal-title.UploadFile {
+	font-weight: 700;
+}
+
+.modal-description.UploadFile {
+	color: var(--text-color-dark);
+}
+
+.UploadFile-area.UploadFile {
+	margin-top: 1.25rem;
+	border: none;
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23ccc' stroke-width='3' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	background-color: transparent;
+	padding: 3rem;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	&:hover, &:focus {
+			background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%232e44ff' stroke-width='3' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	}
+} 
+
+.UploadFile-area-icon.UploadFile {
+	display: absolute;
+	width: 1.25rem;
+	height: 1.25rem;
+    left: 25px;
+	svg {
+		max-height: 80px;
+		max-width: 16%;
+	}
+}
+
+.UploadFile-area-title.UploadFile {
+	margin-top: 1rem;
+	display: block;
+	font-weight: 700;
+		color: #32be8f;
+}
+
+.UploadFile-area-description.UploadFile {
+		display: block;
+		color: var(--text-color-dark);
+	strong {
+		color: #32be8f;;
+		font-weight: 700;
+	}
+}
+
+.modal-footer.UploadFile {
+	padding: 1rem 1.5rem 1.5rem;
+	display: flex;
+	justify-content: flex-end;
+	[class*="btn-"] {
+		margin-left: .75rem;
+	}
+}
+
+.btn-secondary.UploadFile, .btn-primary.UploadFile {
+	padding: .5rem 1rem;
+	font-weight: 500;
+	border: 2px solid var(--primary-color-light);
+    color: var(--text-color-dark);
+	border-radius: .25rem;
+	background-color: transparent;
+}
+
+.btn-primary.UploadFile {
+	color: var(--text-color-dark);
+	background-color: var(--primary-color);
+	border-color: #32be8f;;
+>>>>>>> origin/master
 }
