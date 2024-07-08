@@ -1,5 +1,3 @@
-// === Funciones Principales ===
-
 // Comprobar si el usuario está autenticado y redirigir a la página de inicio de sesión si no lo está
 function guardianCheck() {
     const guardianId = localStorage.getItem("token");
@@ -10,10 +8,11 @@ function guardianCheck() {
 
 // Inicializar cuando el contenido del DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", () => {
-    guardianCheck()
+    guardianCheck();
     initMode();
     initEventListeners();
-    generateFolder();
+    generateFile();
+    initFilters();
 });
 
 // Inicializar el modo (claro/oscuro) basado en la configuración guardada en localStorage
@@ -54,8 +53,10 @@ function initEventListeners() {
     modeSwitch.addEventListener("click", () => {
         toggleDarkMode(body, modeText);
     });
+}
 
-    // Añadir event listener para el cambio de criterio de filtro
+// Inicializar los filtros y configurar los eventos para manejar cambios en los filtros
+function initFilters() {
     document.getElementById('filterCriteria').addEventListener('change', handleFilterChange);
 }
 
@@ -72,8 +73,8 @@ function toggleDarkMode(body, modeText) {
     }
 }
 
-// Generar las tarjetas de carpetas
-function generateFolder(sortCriteria) {
+// Generar las tarjetas de archivos
+function generateFile(sortCriteria) {
     const root = document.querySelector(".containerCard");
 
     // Obtener el token de autenticación y decodificarlo
@@ -81,36 +82,39 @@ function generateFolder(sortCriteria) {
     const tokenPayload = parseJwt(authToken);
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
 
-    console.log('Fetching folders for userId:', userId);
+    console.log('Fetching files for userId:', userId);
 
-    // Hacer una solicitud para obtener las carpetas del usuario
-    fetch(`http://localhost:5246/api/folders/${userId}`)
+    // Hacer una solicitud para obtener los archivos del usuario
+    fetch(`http://localhost:5246/api/files/${userId}?page=1&pageSize=200`)
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            // Ordenar las carpetas según el criterio seleccionado
+            // Ordenar los archivos según el criterio seleccionado
             if (sortCriteria === 'nameAsc') {
-                data.Folders.sort((a, b) => a.Name.localeCompare(b.Name));
+                data.Documents.sort((a, b) => a.Name.localeCompare(b.Name));
             } else if (sortCriteria === 'nameDesc') {
-                data.Folders.sort((a, b) => b.Name.localeCompare(a.Name));
+                data.Documents.sort((a, b) => b.Name.localeCompare(a.Name));
+            } else if (sortCriteria === 'dateAsc') {
+                data.Documents.sort((a, b) => new Date(a.DateCreate) - new Date(b.DateCreate));
+            } else if (sortCriteria === 'dateDesc') {
+                data.Documents.sort((a, b) => new Date(b.DateCreate) - new Date(a.DateCreate));
             }
-            // Otros criterios de ordenamiento pueden ser implementados aquí
 
-            console.log('Sorted folders:', data.Folders);
+            console.log('Sorted files:', data.Documents);
 
-            // Limpiar contenedor antes de agregar las nuevas carpetas ordenadas
+            // Limpiar contenedor antes de agregar los nuevos archivos ordenados
             root.innerHTML = '';
 
-            // Crear las tarjetas de carpetas ordenadas
-            data.Folders.forEach(element => {
-                createFolderCard(element, root);
+            // Crear las tarjetas de archivos ordenados
+            data.Documents.forEach(element => {
+                createFileCard(element, root);
             });
         })
         .catch(error => {
             if (error.message === 'Failed to fetch') {
                 showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
             } else {
-                showAlert("No hay carpetas creadas", 'warning');
+                showAlert("No hay archivos creados", 'warning');
             }
             console.error('Fetch error:', error);
         });
@@ -121,77 +125,89 @@ function handleSortCriteriaChange() {
     // Obtener el criterio seleccionado del select
     const sortCriteria = document.getElementById('sortCriteria').value;
 
-    // Llamar a generateFolder con el criterio seleccionado
-    generateFolder(sortCriteria);
+    // Llamar a generateFile con el criterio seleccionado
+    generateFile(sortCriteria);
 }
 
 // Manejar cambios en los filtros
 function handleFilterChange() {
-    generateFolder(document.getElementById('filterCriteria').value);
+    generateFile(document.getElementById('filterCriteria').value);
 }
 
-// Crear una tarjeta de carpeta y añadirla al contenedor raíz
-function createFolderCard(element, root) {
+// Crear una tarjeta de archivo y añadirla al contenedor raíz
+function createFileCard(element, root) {
     const div = document.createElement('div');
     div.className = 'col';
-    div.id = `folder-${element.Id}`;
+    div.id = `file-${element.Id}`;
+
+    // Formatear la fecha
+    const date = new Date(element.DateCreate);
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    const formattedDate = date.toLocaleDateString('en-US', options);
 
     div.innerHTML = `
-        <div class="card rounded-4 h-100 cardFolder">
+        <div class="card rounded-4 h-100 cardFile">
             <div class="card-body ps-4">
                 <div class="headerOptions d-flex justify-content-between">
-                    <i class='bi bi-folder-fill mb-5'></i>
-                    <i class="bx bx-edit btnEdit" title="Editar Carpeta" type="button" data-bs-toggle="modal" data-bs-target="#EditFolder"></i>
+                    <i class="bi bi-file-earmark-text-fill mb-5"></i>
+                    <i class="bx bx-edit btnEdit" title="Editar Archivo" type="button" data-bs-toggle="modal" data-bs-target="#EditFile"></i>
                 </div>
                 <div class="bodyCard">
                     <h5 class="card-title">${element.Name}</h5>
-                    <p class="card-text ">${element.CountFiles} files</p>
+                    <p class="card-text ">${formattedDate}</p>
                 </div>
             </div>
             <div class="card-footer pt-2 pb-1 d-flex justify-content-between align-items-center">
                 <p class="card-footerText ps-2">${returnFileSize(element.Size).value} ${element.UnitSize}</p>
                 <div class="btn-group d-flex justify-content-center align-items-center">
-                    <a type="button" title="Eliminar carpeta" class="text-center">
+                    <a type="button" title="Eliminar archivo" class="text-center">
                         <i class="bi bi-trash2-fill me-3 iconCard iconCardTrash"></i>
                     </a>
+                    <a type="button" title="Enviar a favoritos" class="text-center">
+                        <i class="bi bi-star-fill me-3 iconCard iconCardStar"></i>
+                    </a>
                     <a type="button" title="Marcar como privado" class="text-center">
-                        <i class="bi bi-file-earmark-arrow-down-fill me-3 iconCard iconCardLock"></i>
+                        <i class="bi bi-lock-fill me-3 iconCard iconCardLock"></i>
+                    </a>
+                    <a type="button" title="Marcar como privado" class="text-center">
+                        <i class="bi bi-file-earmark-arrow-down-fill me-3 iconCard iconCardDownload"></i>
                     </a>
                 </div>
             </div>
         </div>
     `;
 
-    // Evento para la tarjeta de carpeta
-    div.querySelector('.cardFolder').addEventListener('click', () => {
-        console.log("Carpeta clicada");
-        sessionStorage.setItem("IdFolder", element.Id);
-        window.location.href = '../NanoDriveFrontend/FileFolder.html';
+    // Evento para la tarjeta de archivo
+    div.querySelector('.cardFile').addEventListener('click', () => {
+        console.log("Archivo clicado");
+        sessionStorage.setItem("IdFile", element.Id);
+        // Redireccionar o realizar alguna acción
     });
 
     // Evento para el botón de edición
     div.querySelector('.btnEdit').addEventListener('click', (event) => {
         event.stopPropagation(); // Detener la propagación del evento click
-        document.getElementById("foldernameEdit").value = element.Name;
-        sessionStorage.setItem("ID", element.Id);
+        document.getElementById("fileNameEdit").value = element.Name;
+        sessionStorage.setItem("FileID", element.Id);
+        console.log(element);
         selectRadio(element.Status);
     });
 
     // Eventos para los botones (ejemplo: eliminar, favoritos, privado)
     div.querySelector('.iconCardTrash').addEventListener('click', (event) => {
         event.stopPropagation(); // Detener la propagación del evento click
-        deleteFolder(element.Id);
+        deleteFile(element.Id);
     });
 
-    // div.querySelector('.iconCardStar').addEventListener('click', (event) => {
-    //     event.stopPropagation(); // Detener la propagación del evento click
-    //     addFavourites(element.Id);
-    // });
+    div.querySelector('.iconCardStar').addEventListener('click', (event) => {
+        event.stopPropagation(); // Detener la propagación del evento click
+        addFavorites(element.Id);
+    });
 
-    // div.querySelector('.iconCardLock').addEventListener('click', (event) => {
-    //     event.stopPropagation(); // Detener la propagación del evento click
-    //     addPrivate(element.Id);
-    // });
+    div.querySelector('.iconCardLock').addEventListener('click', (event) => {
+        event.stopPropagation(); // Detener la propagación del evento click
+        addPrivate(element.Id);
+    });
 
     root.appendChild(div);
 }
@@ -204,9 +220,9 @@ function selectRadio(status) {
     });
 }
 
-// Eliminar una carpeta
-function deleteFolder(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
+// Eliminar un archivo
+function deleteFile(fileId) {
+    fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json"
@@ -214,18 +230,20 @@ function deleteFolder(folderId) {
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById(`folder-${folderId}`).remove();
+        document.getElementById(`file-${fileId}`).remove();
         showAlert(data.Message, 'success');
+        root.innerHTML = '';
+        generateFile();
     })
     .catch(error => {
-        showAlert('Error deleting folder', 'error');
+        showAlert('Error deleting file', 'error');
         console.error('Error:', error);
     });
 }
 
-// Añadir una carpeta a favoritos
-function addFavourites(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/favourite`, {
+// Añadir un archivo a favoritos
+function addFavorites(fileId) {
+    fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json"
@@ -242,9 +260,9 @@ function addFavourites(folderId) {
     });
 }
 
-// Marcar una carpeta como privada
-function addPrivate(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/private`, {
+// Marcar un archivo como privado
+function addPrivate(fileId) {
+    fetch(`http://localhost:5246/api/file/${fileId}/private`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json"
@@ -261,78 +279,66 @@ function addPrivate(folderId) {
     });
 }
 
-// Subir una nueva carpeta
-function initFolderUpload() {
+// Subir un nuevo archivo
+function initFileUpload() {
     const root = document.querySelector(".containerCard");
-    const folderName = document.getElementById("foldername").value;
+    const fileInput = document.getElementById("file");
+    const files = fileInput.files;
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
-    const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     const event = new Date().toISOString();
+    const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+    root.innerHTML = '';
 
-    if (folderName && selectedRadio) {
-        const formData = {
-            name: folderName,
-            dateCreate: event,
-            status: selectedRadio.value,
-            userId: userId // Actualiza esto según sea necesario
-        };
+    if (files.length > 0 && selectedRadio) {
+        const formData = new FormData();
+        for (const file of files) {
+            formData.append('files', file);
+        }
+        formData.append('status', selectedRadio.value);
+        formData.append('userId', userId);
 
-        fetch('http://localhost:5246/api/folder', {
+        fetch('http://localhost:5246/api/files', {
             method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData),
+            body: formData,
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data.Message);
-            if (data.StatusCode == 201) {
+            if (data.StatusCode === 201) {
                 $('#drangAndDropFile').modal('hide');
                 showAlert(data.Message, 'success');
-            }
-
-            if (data.StatusCode != 201) {
+            } else {
                 showAlert(data.Message, 'warning');
             }
-            console.log(data);
             root.innerHTML = '';
-            generateFolder();
+            generateFile();
         })
         .catch(error => {
-            showAlert(data.Message, 'error');
+            showAlert('Error uploading file', 'error');
             console.error('Error:', error);
         });
-    } else if (!folderName && !selectedRadio) {
-        showAlert('Folder name cannot be empty and status option', 'warning');
-    } else if (!folderName) {
-        showAlert('Folder name cannot be empty', 'warning');
-    } else if (!selectedRadio) {
-        showAlert('Please select a status option', 'warning');
     } else {
-        showAlert('Please enter a folder name and select an option', 'warning');
+        showAlert('Please select files and a status option', 'warning');
     }
 }
 
-// Actualizar una carpeta existente
-function initFolderUpdate() {
+// Actualizar un archivo existente
+function initFileUpdate() {
+    console.log("PRESS");
     const root = document.querySelector(".containerCard");
-    const folderNameElement = document.querySelector(".foldername");
-    const folderName = folderNameElement ? folderNameElement.value : '';
+    const fileNameElement = document.querySelector(".fileName");
+    const fileName = fileNameElement ? fileNameElement.value : '';
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
     const event = new Date().toISOString();
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-    let folderIdLocal = sessionStorage.getItem("IdFolder");
-
-    if (folderName && selectedRadio) {
+    const FolderId = sessionStorage.getItem("FileID")
+    if (fileName && selectedRadio) {
         const formData = {
-            Name: folderName.toString(),
+            Name: fileName.toString(),
             DateCreate: event,
             Status: selectedRadio.value,
-            UserId: userId
         };
 
-        fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
+        fetch(`http://localhost:5246/api/file/${FolderId}`, {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json",
@@ -341,22 +347,22 @@ function initFolderUpdate() {
         })
         .then(response => response.json())
         .then(data => {
-            console.dir(data);
-            if (data.StatusCode == 200) {
-                $('#EditFolder').modal('hide');
+            if (data.StatusCode === 200) {
+                $('#EditFile').modal('hide');
                 showAlert(data.Message, 'success');
                 root.innerHTML = '';
-                generateFolder();
-            } else if (data.StatusCode == 409) {
+                generateFile();
+            } else if (data.StatusCode === 409) {
                 showAlert(data.Message, 'warning');
             }
-            console.dir(data);
         })
         .catch(error => {
-            showAlert(`Folder update failed: ${error.message}`, 'error');
+            showAlert(`File update failed: ${error.message}`, 'error');
         });
     } else {
-        showAlert('Please enter a folder name and select an option', 'warning');
+            console.log(fileName);
+    console.log(selectRadio.value);
+        showAlert('Please enter a file name and select an option', 'warning');
     }
 }
 
@@ -400,17 +406,6 @@ document.querySelector('.close-btn').addEventListener('click', function () {
     alertBox.classList.add("hide");
 });
 
-// Formatear el tamaño del archivo para mostrarlo en una unidad legible
-function returnFileSize(number) {
-    if (number < 1024) {
-        return { value: number, unit: 'bytes' };
-    } else if (number >= 1024 && number < 1048576) {
-        return { value: (number / 1024).toFixed(1), unit: 'KB' };
-    } else if (number >= 1048576) {
-        return { value: (number / 1048576).toFixed(1), unit: 'MB' };
-    }
-}
-
 // Decodificar el token JWT
 function parseJwt(token) {
     const base64Url = token.split('.')[1];
@@ -433,12 +428,17 @@ console.log(userId);
 
 // Función de cierre de sesión
 function logout() {
-    localStorage.removeItem('token');
-    console.log('Logged out');
-    window.location.href = 'Login.html'; // Redirigir a la página de inicio de sesión después de cerrar sesión
+    localStorage.removeItem("token");
+    window.location.href = 'Login.html';
 }
 
-// Asignar la función de cierre de sesión al botón de cierre de sesión
-document.getElementById('logout').onclick = logout;
-
-console.log(document.getElementById('logout'));
+// Formatear el tamaño del archivo para mostrarlo en una unidad legible
+function returnFileSize(number) {
+    if (number < 1024) {
+        return { value: number, unit: 'bytes' };
+    } else if (number >= 1024 && number < 1048576) {
+        return { value: (number / 1024).toFixed(1), unit: 'KB' };
+    } else if (number >= 1048576) {
+        return { value: (number / 1048576).toFixed(1), unit: 'MB' };
+    }
+}

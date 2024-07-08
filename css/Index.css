@@ -452,6 +452,14 @@ body.dark .home .text {
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
+.iconCardDownload:hover {
+    color: blue;
+    /* Añadir un fondo sutil */
+    transform: scale(2);
+    /* Aumentar el tamaño ligeramente */
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
 /* ==========  ALERT =========== */
 
 .alert {
