@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Animated Login Form</title>
+	<link rel="stylesheet" href="./css/login.css">
+	<link href="https://fonts.googleapis.com/css?family=Poppins:600&display=swap" rel="loginsheet">
+	<script src="https://kit.fontawesome.com/a81368914c.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+	<img class="wave" src="img/wave.png">
+	<div class="container">
+		<div class="img">
+			<img src="img/bg.svg">
+		</div>
+		<div class="login-content">
+			<form action="" id="">
+				<img src="img/avatar.svg">
+				<h3 class="title" style="line-height: 3.5;">Create a new account</h3>
+
+
+                <div class="input-div one">
+                    <div class="i">
+                            <i class="fas fa-user"></i>
+                    </div>
+                    <div class="div">
+                            <input type="text" class="input" placeholder="Name" id="nameNew">
+                    </div>
+                 </div>
+
+
+                 <div class="input-div one">
+                    <div class="i">
+                            <i class="fas fa-user"></i>
+                    </div>
+                    <div class="div">
+                            <input type="text" class="input" placeholder="User name" id="usernameNew">
+                    </div>
+                 </div>
+
+
+           		<div class="input-div one">
+           		   <div class="i">
+           		   		<i class="fas fa-user"></i>
+           		   </div>
+           		   <div class="div">
+           		   		<input type="text" class="input" placeholder="Email" id="emailNew">
+           		   </div>
+           		</div>
+           		<div class="input-div pass">
+           		   <div class="i"> 
+           		    	<i class="fas fa-lock"></i>
+           		   </div>
+           		   <div class="div">
+           		    	<input type="password" class="input" placeholder="Password" id="passwordNew" >
+            	   </div>
+            	</div>
+				<div class="error-message" id="message"></div>
+				<button type="button" class="btn" id="singup-btn" style="margin-top: 50px;" onclick="createaccount()">Create account</button>
+            </form>
+        </div>
+    </div>
+    <script src="js/CreateAccount.js"></script>
+
+</body>
+</html>
