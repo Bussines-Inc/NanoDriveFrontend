@@ -74,7 +74,7 @@ function toggleDarkMode(body, modeText) {
 }
 
 // Generar las tarjetas de archivos
-function generateFile(sortCriteria) {
+async function generateFile(sortCriteria) {
     const root = document.querySelector(".containerCard");
 
     // Obtener el token de autenticación y decodificarlo
@@ -84,40 +84,38 @@ function generateFile(sortCriteria) {
 
     console.log('Fetching files for userId:', userId);
 
-    // Hacer una solicitud para obtener los archivos del usuario
-    fetch(`http://localhost:5246/api/files/private/${userId}}?page=1&pageSize=200`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            // Ordenar los archivos según el criterio seleccionado
-            if (sortCriteria === 'nameAsc') {
-                data.Documents.sort((a, b) => a.Name.localeCompare(b.Name));
-            } else if (sortCriteria === 'nameDesc') {
-                data.Documents.sort((a, b) => b.Name.localeCompare(a.Name));
-            } else if (sortCriteria === 'dateAsc') {
-                data.Documents.sort((a, b) => new Date(a.DateCreate) - new Date(b.DateCreate));
-            } else if (sortCriteria === 'dateDesc') {
-                data.Documents.sort((a, b) => new Date(b.DateCreate) - new Date(a.DateCreate));
-            }
+    try {
+        const response = await fetch(`http://localhost:5246/api/files/private/${userId}?page=1&pageSize=200`);
+        const data = await response.json();
 
-            console.log('Sorted files:', data.Documents);
+        // Ordenar los archivos según el criterio seleccionado
+        if (sortCriteria === 'nameAsc') {
+            data.Documents.sort((a, b) => a.Name.localeCompare(b.Name));
+        } else if (sortCriteria === 'nameDesc') {
+            data.Documents.sort((a, b) => b.Name.localeCompare(a.Name));
+        } else if (sortCriteria === 'dateAsc') {
+            data.Documents.sort((a, b) => new Date(a.DateCreate) - new Date(b.DateCreate));
+        } else if (sortCriteria === 'dateDesc') {
+            data.Documents.sort((a, b) => new Date(b.DateCreate) - new Date(a.DateCreate));
+        }
 
-            // Limpiar contenedor antes de agregar los nuevos archivos ordenados
-            root.innerHTML = '';
+        console.log('Sorted files:', data.Documents);
 
-            // Crear las tarjetas de archivos ordenados
-            data.Documents.forEach(element => {
-                createFileCard(element, root);
-            });
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
-            } else {
-                showAlert("No hay archivos creados", 'warning');
-            }
-            console.error('Fetch error:', error);
+        // Limpiar contenedor antes de agregar los nuevos archivos ordenados
+        root.innerHTML = '';
+
+        // Crear las tarjetas de archivos ordenados
+        data.Documents.forEach(element => {
+            createFileCard(element, root);
         });
+    } catch (error) {
+        if (error.message === 'Failed to fetch') {
+            showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+        } else {
+            showAlert("No hay archivos creados", 'warning');
+        }
+        console.error('Fetch error:', error);
+    }
 }
 
 // Manejar el cambio de criterio de ordenamiento
@@ -221,71 +219,66 @@ function selectRadio(status) {
 }
 
 // Eliminar un archivo
-function deleteFile(fileId) {
-    fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+async function deleteFile(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
         document.getElementById(`file-${fileId}`).remove();
         showAlert(data.Message, 'success');
-        root.innerHTML = '';
         generateFile();
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error deleting file', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Añadir un archivo a favoritos
-function addFavorites(fileId) {
-    fetch(`http://localhost:5246/api/file/${fileId}/private`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById(`folder-${folderId}`).remove();
+async function addFavorites(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
+        document.getElementById(`file-${fileId}`).remove();
         showAlert(data.Message, 'success');
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error adding to favorites', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Marcar un archivo como privado
-function addPrivate(fileId) {
-    fetch(`http://localhost:5246/api/file/${fileId}/private`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById(`folder-${folderId}`).remove();
+async function addPrivate(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/${fileId}/private`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
+        document.getElementById(`file-${fileId}`).remove();
         showAlert(data.Message, 'success');
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error marking as private', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Subir un nuevo archivo
-function initFileUpload() {
+async function initFileUpload() {
     const root = document.querySelector(".containerCard");
     const fileInput = document.getElementById("file");
     const files = fileInput.files;
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
-    const event = new Date().toISOString();
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     root.innerHTML = '';
 
@@ -297,32 +290,31 @@ function initFileUpload() {
         formData.append('status', selectedRadio.value);
         formData.append('userId', userId);
 
-        fetch('http://localhost:5246/api/files', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch('http://localhost:5246/api/files', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+
             if (data.StatusCode === 201) {
                 $('#drangAndDropFile').modal('hide');
                 showAlert(data.Message, 'success');
             } else {
                 showAlert(data.Message, 'warning');
             }
-            root.innerHTML = '';
             generateFile();
-        })
-        .catch(error => {
+        } catch (error) {
             showAlert('Error uploading file', 'error');
             console.error('Error:', error);
-        });
+        }
     } else {
         showAlert('Please select files and a status option', 'warning');
     }
 }
 
 // Actualizar un archivo existente
-function initFileUpdate() {
+async function initFileUpdate() {
     console.log("PRESS");
     const root = document.querySelector(".containerCard");
     const fileNameElement = document.querySelector(".fileName");
@@ -330,7 +322,7 @@ function initFileUpdate() {
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
     const event = new Date().toISOString();
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-    const FolderId = sessionStorage.getItem("FileID")
+    const fileId = sessionStorage.getItem("FileID");
     if (fileName && selectedRadio) {
         const formData = {
             Name: fileName.toString(),
@@ -338,30 +330,27 @@ function initFileUpdate() {
             Status: selectedRadio.value,
         };
 
-        fetch(`http://localhost:5246/api/file/${FolderId}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch(`http://localhost:5246/api/file/${fileId}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            const data = await response.json();
+
             if (data.StatusCode === 200) {
                 $('#EditFile').modal('hide');
                 showAlert(data.Message, 'success');
-                root.innerHTML = '';
                 generateFile();
             } else if (data.StatusCode === 409) {
                 showAlert(data.Message, 'warning');
             }
-        })
-        .catch(error => {
+        } catch (error) {
             showAlert(`File update failed: ${error.message}`, 'error');
-        });
+        }
     } else {
-            console.log(fileName);
-    console.log(selectRadio.value);
         showAlert('Please enter a file name and select an option', 'warning');
     }
 }

@@ -1,11 +1,11 @@
 // === Funciones Principales ===
 
 // Inicializar cuando el contenido del DOM esté completamente cargado
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     initMode();
     initEventListeners();
     initFilters();
-    generateFileFolder();
+    await generateFileFolder();
 });
 
 // Inicializar el modo (claro/oscuro) basado en la configuración guardada en localStorage
@@ -13,7 +13,6 @@ function initMode() {
     const body = document.querySelector('body');
     const modeText = body.querySelector(".mode-text");
 
-    // Si el modo oscuro está habilitado en localStorage, aplicarlo
     if (localStorage.getItem("dark-mode") === "enabled") {
         body.classList.add("dark");
         modeText.innerText = "Light mode";
@@ -32,17 +31,14 @@ function initEventListeners() {
     const modeSwitch = body.querySelector(".toggle-switch");
     const modeText = body.querySelector(".mode-text");
 
-    // Toggle para abrir/cerrar la barra lateral
     toggle.addEventListener("click", () => {
         sidebar.classList.toggle("close");
     });
 
-    // Abrir la barra lateral al hacer clic en el botón de búsqueda
     searchBtn.addEventListener("click", () => {
         sidebar.classList.remove("close");
     });
 
-    // Cambiar el modo (claro/oscuro) al hacer clic en el interruptor
     modeSwitch.addEventListener("click", () => {
         toggleDarkMode(body, modeText);
     });
@@ -67,30 +63,28 @@ function toggleDarkMode(body, modeText) {
 }
 
 // Generar las tarjetas de archivos dentro de la carpeta seleccionada
-function generateFileFolder() {
+async function generateFileFolder() {
     const root = document.querySelector(".containerCard");
-    let folderIdLocal = sessionStorage.getItem("IdFolder");
+    const folderIdLocal = sessionStorage.getItem("IdFolder");
     root.innerHTML = ''; // Limpiar el contenido antes de regenerar
 
-    fetch(`http://localhost:5246/api/folder/${folderIdLocal}/documents`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.Folder && data.Folder.Documents && data.Folder.Documents.length > 0) {
-                const files = data.Folder.Documents;
-                applyFilters(files, root);
-            } else {
-                showAlert("No hay archivos creados", 'warning');
-            }
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
-            } else {
-                console.log(error);
-                showAlert("No hay archivos creados", 'warning');
-            }
-            console.error('Fetch error:', error);
-        });
+    try {
+        const response = await fetch(`http://localhost:5246/api/folder/${folderIdLocal}/documents`);
+        const data = await response.json();
+        if (data.Folder && data.Folder.Documents && data.Folder.Documents.length > 0) {
+            const files = data.Folder.Documents;
+            applyFilters(files, root);
+        } else {
+            showAlert("No hay archivos creados", 'warning');
+        }
+    } catch (error) {
+        if (error.message === 'Failed to fetch') {
+            showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+        } else {
+            console.error(error);
+            showAlert("No hay archivos creados", 'warning');
+        }
+    }
 }
 
 // === Funciones Secundarias ===
@@ -105,7 +99,6 @@ function applyFilters(files, root) {
     const filterCriteria = document.getElementById('filterCriteria').value;
     const filteredFiles = filterFiles(files, filterCriteria);
 
-    // Limpiar el contenedor antes de agregar los archivos filtrados
     root.innerHTML = '';
     filteredFiles.forEach(element => {
         createFileCard(element, root);
@@ -134,7 +127,6 @@ function createFileCard(element, root) {
     div.className = 'col';
     div.id = `folder-${element.Id}`;
 
-    // Formatear la fecha
     const date = new Date(element.DateCreate);
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
     const formattedDate = date.toLocaleDateString('en-US', options);
@@ -144,7 +136,7 @@ function createFileCard(element, root) {
             <div class="card-body ps-4">
                 <div class="headerOptions d-flex justify-content-between">
                     <i class="bi bi-file-earmark-text-fill mb-5"></i>
-                    <i class="bx bx-edit btnEdit" title="Editar Carpeta" type="button" data-bs-toggle="modal" data-bs-target="#EditFile"></i>
+                    <i class="bx bx-edit btnEdit" title="Editar Archivo" type="button" data-bs-toggle="modal" data-bs-target="#EditFile"></i>
                 </div>
                 <div class="bodyCard">
                     <h5 class="card-title">${element.Name}</h5>
@@ -152,9 +144,9 @@ function createFileCard(element, root) {
                 </div>
             </div>
             <div class="card-footer pt-2 pb-1 d-flex justify-content-between align-items-center">
-                <p class="card-footerText ps-2">${returnFileSize(element.Size).value} ${element.UnitSize}</p>
+                <p class="card-footerText ps-2">${returnFileSize(element.Size).value} ${returnFileSize(element.Size).unit}</p>
                 <div class="btn-group d-flex justify-content-center align-items-center">
-                    <a type="button" title="Eliminar carpeta" class="text-center">
+                    <a type="button" title="Eliminar archivo" class="text-center">
                         <i class="bi bi-trash2-fill me-3 iconCard iconCardTrash"></i>
                     </a>
                     <a type="button" title="Enviar a favoritos" class="text-center">
@@ -163,7 +155,7 @@ function createFileCard(element, root) {
                     <a type="button" title="Marcar como privado" class="text-center">
                         <i class="bi bi-lock-fill me-3 iconCard iconCardLock"></i>
                     </a>
-                    <a type="button" title="Marcar como privado" class="text-center">
+                    <a type="button" title="Descargar archivo" class="text-center">
                         <i class="bi bi-file-earmark-arrow-down-fill me-3 iconCard iconCardDownload"></i>
                     </a>
                 </div>
@@ -171,14 +163,12 @@ function createFileCard(element, root) {
         </div>
     `;
 
-    // Evento para el botón de edición
     div.querySelector('.btnEdit').addEventListener('click', () => {
         sessionStorage.setItem("ID", element.Id);
         document.getElementById("fileNameEdit").value = element.Name;
         selectRadio(element.Status);
     });
 
-    // Eventos para los botones (ejemplo: eliminar, favoritos, privado)
     div.querySelector('.iconCardTrash').addEventListener('click', () => {
         deleteFile(element.Id);
     });
@@ -203,61 +193,57 @@ function selectRadio(status) {
 }
 
 // Eliminar un archivo
-function deleteFile(fileId) {
-    fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.dir(data);
-            document.getElementById(`folder-${fileId}`).remove();
-            showAlert(data.Message, 'success');
-        })
-        .catch(error => {
-            showAlert('Error deleting folder', 'error');
-            console.log('Error:', error);
+async function deleteFile(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
+        const data = await response.json();
+        document.getElementById(`folder-${fileId}`).remove();
+        showAlert(data.Message, 'success');
+    } catch (error) {
+        showAlert('Error deleting file', 'error');
+        console.error('Error:', error);
+    }
 }
 
 // Añadir un archivo a favoritos
-function addFavourites(fileId) {
-    fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById(`folder-${fileId}`).remove();
-            showAlert(data.Message, 'success');
-        })
-        .catch(error => {
-            showAlert('Error adding to favorites', 'error');
-            console.error('Error:', error);
+async function addFavourites(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
+        const data = await response.json();
+        document.getElementById(`folder-${fileId}`).remove();
+        showAlert(data.Message, 'success');
+    } catch (error) {
+        showAlert('Error adding to favorites', 'error');
+        console.error('Error:', error);
+    }
 }
 
 // Marcar un archivo como privado
-function addPrivate(fileId) {
-    fetch(`http://localhost:5246/api/file/${fileId}/private`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById(`folder-${fileId}`).remove();
-            showAlert(data.Message, 'success');
-        })
-        .catch(error => {
-            showAlert('Error marking as private', 'error');
-            console.error('Error:', error);
+async function addPrivate(fileId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/file/${fileId}/private`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
+        const data = await response.json();
+        document.getElementById(`folder-${fileId}`).remove();
+        showAlert(data.Message, 'success');
+    } catch (error) {
+        showAlert('Error marking as private', 'error');
+        console.error('Error:', error);
+    }
 }
 
 // Vista previa de los archivos seleccionados para subir
@@ -268,7 +254,6 @@ function previewFiles() {
     const preview = document.querySelector(".preview");
     const curFiles = fileInput.files;
 
-    // Limpiar la vista previa antes de agregar nuevos archivos
     while (preview.firstChild) {
         preview.removeChild(preview.firstChild);
     }
@@ -334,10 +319,10 @@ function removeFileFromInput(index) {
 async function initFileUpload() {
     const root = document.querySelector(".containerCard");
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
-    let folderIdLocal = sessionStorage.getItem("IdFolder");
+    const folderIdLocal = sessionStorage.getItem("IdFolder");
     const fileInput = document.getElementById('file');
     const files = fileInput.files;
-    
+
     if (files.length > 0 && selectedRadio) {
         for (const file of files) {
             const formData = {
@@ -348,7 +333,7 @@ async function initFileUpload() {
                 status: selectedRadio.value,
                 folderId: folderIdLocal
             };
-            
+
             try {
                 const response = await fetch('http://localhost:5246/api/files', {
                     method: 'POST',
@@ -358,24 +343,16 @@ async function initFileUpload() {
                     body: JSON.stringify(formData),
                 });
                 const data = await response.json();
-                
+
                 if (response.ok) {
-                    console.log("SUCCESS");
-                    console.log(data);
-                    // Mostrar alerta de éxito
                     showAlert(data.Message, 'success');
                 } else {
-                    console.log("ERROR");
-                    console.log(data);
                     showAlert(`File upload failed for ${file.name}: ${data.Message}`, 'error');
                 }
             } catch (error) {
-                console.log("ERROR");
-                console.error(error);
                 showAlert(`File upload failed for ${file.name}: ${error.message}`, 'error');
             }
         }
-        console.log("YA CARGARON TODOS");
         root.innerHTML = " ";
         generateFileFolder();
     } else {
@@ -384,12 +361,12 @@ async function initFileUpload() {
 }
 
 // Subir una nueva carpeta
-function initFolderUpload() {
+async function initFolderUpload() {
     const root = document.querySelector(".containerCard");
     const folderName = document.getElementById("foldername").value;
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
     const event = new Date().toISOString();
-    let folderIdLocal = sessionStorage.getItem("IdFolder");
+    const folderIdLocal = sessionStorage.getItem("IdFolder");
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     root.innerHTML = '';
 
@@ -402,41 +379,39 @@ function initFolderUpload() {
             userId: userId
         };
 
-        fetch('http://localhost:5246/api/folder', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData),
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.Message);
-                if (data.StatusCode == 201) {
-                    $('#drangAndDropFile').modal('hide');
-                    showAlert(data.Message, 'success');
-                } else {
-                    showAlert(data.Message, 'warning');
-                }
-                generateFileFolder();
-            })
-            .catch(error => {
-                showAlert(data.Message, 'error');
-                console.error('Error:', error);
+        try {
+            const response = await fetch('http://localhost:5246/api/folder', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData),
             });
+            const data = await response.json();
+
+            if (data.StatusCode == 201) {
+                $('#drangAndDropFile').modal('hide');
+                showAlert(data.Message, 'success');
+            } else {
+                showAlert(data.Message, 'warning');
+            }
+            await generateFileFolder();
+        } catch (error) {
+            showAlert(`Error creating folder: ${error.message}`, 'error');
+        }
     } else {
         showAlert('Please enter a folder name and select an option', 'warning');
     }
 }
 
 // Actualizar una carpeta existente
-function initFileFolderUpdate() {
+async function initFileFolderUpdate() {
     const root = document.querySelector(".containerCard");
     const folderNameElement = document.querySelector(".foldername");
-    const folderName = folderNameElement ? folderNameElement.value : ''; 
+    const folderName = folderNameElement ? folderNameElement.value : '';
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
     const event = new Date().toISOString();
-    let folderIdLocal = sessionStorage.getItem("ID");
+    const folderIdLocal = sessionStorage.getItem("ID");
     root.innerHTML = '';
 
     if (folderName && selectedRadio) {
@@ -446,28 +421,28 @@ function initFileFolderUpdate() {
             Status: selectedRadio.value,
         };
 
-        fetch(`http://localhost:5246/api/file/${folderIdLocal}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.StatusCode == 200) {
-                    $('#EditFile').modal('hide');
-                    showAlert(data.Message, 'success');
-                    generateFileFolder();
-                } else {
-                    showAlert(data.Message, 'warning');
-                }
-            })
-            .catch(error => {
-                showAlert(`Folder update failed: ${error.message}`, 'error');
+        try {
+            const response = await fetch(`http://localhost:5246/api/file/${folderIdLocal}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
             });
+            const data = await response.json();
+
+            if (data.StatusCode == 200) {
+                $('#EditFile').modal('hide');
+                showAlert(data.Message, 'success');
+                await generateFileFolder();
+            } else {
+                showAlert(data.Message, 'warning');
+            }
+        } catch (error) {
+            showAlert(`Folder update failed: ${error.message}`, 'error');
+        }
     } else {
-        showAlert('Please enter a folder name and select an FOLDERFILE', 'warning');
+        showAlert('Please enter a folder name and select an option', 'warning');
     }
 }
 
@@ -497,8 +472,8 @@ function showAlert(message, type) {
     alertBox.classList.add("show");
     alertBox.classList.remove("hide");
     alertBox.classList.add("showAlert");
-    
-    setTimeout(function () {
+
+    setTimeout(() => {
         alertBox.classList.remove("show");
         alertBox.classList.add("hide");
     }, 5000);
@@ -514,51 +489,17 @@ document.querySelector('.close-btn').addEventListener('click', function () {
 // Verificar si el tipo de archivo es válido
 function validFileType(file) {
     const fileTypes = [
-        // Imágenes
-        "image/apng",
-        "image/bmp",
-        "image/gif",
-        "image/jpeg",
-        "image/pjpeg",
-        "image/png",
-        "image/svg+xml",
-        "image/tiff",
-        "image/webp",
-        "image/x-icon",
-        // Documentos
-        "application/pdf",
-        "application/msword", // .doc
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-        "application/vnd.ms-excel", // .xls
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-        "application/vnd.ms-powerpoint", // .ppt
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
-        "text/plain",
-        "text/csv",
-        "text/html",
-        "application/rtf",
-        // Audio
-        "audio/midi",
-        "audio/mpeg",
-        "audio/webm",
-        "audio/ogg",
-        "audio/wav",
-        "audio/aac",
-        // Video
-        "video/webm",
-        "video/ogg",
-        "video/mp4",
-        "video/x-msvideo",
-        // Otros
-        "application/zip",
-        "application/x-rar-compressed",
-        "application/x-7z-compressed",
-        "application/x-tar",
-        "application/x-bzip",
-        "application/x-bzip2",
-        "application/java-archive", // .jar
-    ];    
-
+        "image/apng", "image/bmp", "image/gif", "image/jpeg", "image/pjpeg", "image/png", 
+        "image/svg+xml", "image/tiff", "image/webp", "image/x-icon", "application/pdf", 
+        "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+        "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+        "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation", 
+        "text/plain", "text/csv", "text/html", "application/rtf", "audio/midi", "audio/mpeg", 
+        "audio/webm", "audio/ogg", "audio/wav", "audio/aac", "video/webm", "video/ogg", 
+        "video/mp4", "video/x-msvideo", "application/zip", "application/x-rar-compressed", 
+        "application/x-7z-compressed", "application/x-tar", "application/x-bzip", "application/x-bzip2", 
+        "application/java-archive"
+    ];
     return fileTypes.includes(file.type);
 }
 

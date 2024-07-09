@@ -1,6 +1,15 @@
 document.getElementById('login-btn').addEventListener('click', async function() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const emailElement = document.getElementById('email');
+    const passwordElement = document.getElementById('password');
+    const errorMessageElement = document.getElementById('error-message');
+
+    if (!emailElement || !passwordElement || !errorMessageElement) {
+        console.error('One or more required elements are missing from the DOM');
+        return;
+    }
+
+    const email = emailElement.value;
+    const password = passwordElement.value;
 
     try {
         const response = await fetch('http://localhost:5246/login', {
@@ -19,15 +28,13 @@ document.getElementById('login-btn').addEventListener('click', async function() 
             localStorage.setItem('token', data.Token);
             window.location.href = 'Index.html'; // Redirigir al dashboard después del inicio de sesión
             console.log('Login successful');
-        } 
-        else {
+        } else {
             const errorMessage = data.Message || 'User or password incorrect';
-            document.getElementById('error-message').textContent = errorMessage;
+            errorMessageElement.textContent = errorMessage;
             console.error('Login error:', errorMessage);
         }
     } catch (error) {
         console.error('Login error:', error); // Imprime el objeto completo de error
-        document.getElementById('error-message').textContent = 'Failed to connect to the server';
+        errorMessageElement.textContent = 'Failed to connect to the server';
     }
 });
-

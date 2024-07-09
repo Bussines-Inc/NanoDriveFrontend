@@ -9,11 +9,11 @@ function guardianCheck() {
 }
 
 // Inicializar cuando el contenido del DOM esté completamente cargado
-document.addEventListener("DOMContentLoaded", () => {
-    guardianCheck()
+document.addEventListener("DOMContentLoaded", async () => {
+    guardianCheck();
     initMode();
     initEventListeners();
-    generateFolder();
+    await generateFolder();
 });
 
 // Inicializar el modo (claro/oscuro) basado en la configuración guardada en localStorage
@@ -73,7 +73,7 @@ function toggleDarkMode(body, modeText) {
 }
 
 // Generar las tarjetas de carpetas
-function generateFolder(sortCriteria) {
+async function generateFolder(sortCriteria) {
     const root = document.querySelector(".containerCard");
 
     // Obtener el token de autenticación y decodificarlo
@@ -83,37 +83,37 @@ function generateFolder(sortCriteria) {
 
     console.log('Fetching folders for userId:', userId);
 
-    // Hacer una solicitud para obtener las carpetas del usuario
-    fetch(`http://localhost:5246/api/folders/${userId}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            // Ordenar las carpetas según el criterio seleccionado
-            if (sortCriteria === 'nameAsc') {
-                data.Folders.sort((a, b) => a.Name.localeCompare(b.Name));
-            } else if (sortCriteria === 'nameDesc') {
-                data.Folders.sort((a, b) => b.Name.localeCompare(a.Name));
-            }
-            // Otros criterios de ordenamiento pueden ser implementados aquí
+    try {
+        const response = await fetch(`http://localhost:5246/api/folders/${userId}`);
+        const data = await response.json();
 
-            console.log('Sorted folders:', data.Folders);
+        console.log(data);
 
-            // Limpiar contenedor antes de agregar las nuevas carpetas ordenadas
-            root.innerHTML = '';
+        // Ordenar las carpetas según el criterio seleccionado
+        if (sortCriteria === 'nameAsc') {
+            data.Folders.sort((a, b) => a.Name.localeCompare(b.Name));
+        } else if (sortCriteria === 'nameDesc') {
+            data.Folders.sort((a, b) => b.Name.localeCompare(a.Name));
+        }
+        // Otros criterios de ordenamiento pueden ser implementados aquí
 
-            // Crear las tarjetas de carpetas ordenadas
-            data.Folders.forEach(element => {
-                createFolderCard(element, root);
-            });
-        })
-        .catch(error => {
-            if (error.message === 'Failed to fetch') {
-                showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
-            } else {
-                showAlert("No hay carpetas creadas", 'warning');
-            }
-            console.error('Fetch error:', error);
+        console.log('Sorted folders:', data.Folders);
+
+        // Limpiar contenedor antes de agregar las nuevas carpetas ordenadas
+        root.innerHTML = '';
+
+        // Crear las tarjetas de carpetas ordenadas
+        data.Folders.forEach(element => {
+            createFolderCard(element, root);
         });
+    } catch (error) {
+        if (error.message === 'Failed to fetch') {
+            showAlert('Hubo un error al obtener los datos: No se pudo conectar con el servidor.', 'error');
+        } else {
+            showAlert("No hay carpetas creadas", 'warning');
+        }
+        console.error('Fetch error:', error);
+    }
 }
 
 // Manejar el cambio de criterio de ordenamiento
@@ -183,16 +183,6 @@ function createFolderCard(element, root) {
         deleteFolder(element.Id);
     });
 
-    // div.querySelector('.iconCardStar').addEventListener('click', (event) => {
-    //     event.stopPropagation(); // Detener la propagación del evento click
-    //     addFavourites(element.Id);
-    // });
-
-    // div.querySelector('.iconCardLock').addEventListener('click', (event) => {
-    //     event.stopPropagation(); // Detener la propagación del evento click
-    //     addPrivate(element.Id);
-    // });
-
     root.appendChild(div);
 }
 
@@ -205,64 +195,61 @@ function selectRadio(status) {
 }
 
 // Eliminar una carpeta
-function deleteFolder(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+async function deleteFolder(folderId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
         document.getElementById(`folder-${folderId}`).remove();
         showAlert(data.Message, 'success');
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error deleting folder', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Añadir una carpeta a favoritos
-function addFavourites(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/favourite`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+async function addFavourites(folderId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/favourite`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
         document.getElementById(`folder-${folderId}`).remove();
         showAlert(data.Message, 'success');
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error adding to favorites', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Marcar una carpeta como privada
-function addPrivate(folderId) {
-    fetch(`http://localhost:5246/api/folder/${folderId}/private`, {
-        method: 'PATCH',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+async function addPrivate(folderId) {
+    try {
+        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/private`, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
         document.getElementById(`folder-${folderId}`).remove();
         showAlert(data.Message, 'success');
-    })
-    .catch(error => {
+    } catch (error) {
         showAlert('Error marking as private', 'error');
         console.error('Error:', error);
-    });
+    }
 }
 
 // Subir una nueva carpeta
-function initFolderUpload() {
+async function initFolderUpload() {
     const root = document.querySelector(".containerCard");
     const folderName = document.getElementById("foldername").value;
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
@@ -277,45 +264,35 @@ function initFolderUpload() {
             userId: userId // Actualiza esto según sea necesario
         };
 
-        fetch('http://localhost:5246/api/folder', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch('http://localhost:5246/api/folder', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData),
+            });
+            const data = await response.json();
             console.log(data.Message);
             if (data.StatusCode == 201) {
                 $('#drangAndDropFile').modal('hide');
                 showAlert(data.Message, 'success');
-            }
-
-            if (data.StatusCode != 201) {
+            } else {
                 showAlert(data.Message, 'warning');
             }
-            console.log(data);
             root.innerHTML = '';
-            generateFolder();
-        })
-        .catch(error => {
-            showAlert(data.Message, 'error');
+            await generateFolder();
+        } catch (error) {
+            showAlert(error.message, 'error');
             console.error('Error:', error);
-        });
-    } else if (!folderName && !selectedRadio) {
-        showAlert('Folder name cannot be empty and status option', 'warning');
-    } else if (!folderName) {
-        showAlert('Folder name cannot be empty', 'warning');
-    } else if (!selectedRadio) {
-        showAlert('Please select a status option', 'warning');
+        }
     } else {
         showAlert('Please enter a folder name and select an option', 'warning');
     }
 }
 
 // Actualizar una carpeta existente
-function initFolderUpdate() {
+async function initFolderUpdate() {
     const root = document.querySelector(".containerCard");
     const folderNameElement = document.querySelector(".foldername");
     const folderName = folderNameElement ? folderNameElement.value : '';
@@ -332,29 +309,27 @@ function initFolderUpdate() {
             UserId: userId
         };
 
-        fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            const response = await fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
+            const data = await response.json();
             console.dir(data);
             if (data.StatusCode == 200) {
                 $('#EditFolder').modal('hide');
                 showAlert(data.Message, 'success');
                 root.innerHTML = '';
-                generateFolder();
-            } else if (data.StatusCode == 409) {
+                await generateFolder();
+            } else {
                 showAlert(data.Message, 'warning');
             }
-            console.dir(data);
-        })
-        .catch(error => {
+        } catch (error) {
             showAlert(`Folder update failed: ${error.message}`, 'error');
-        });
+        }
     } else {
         showAlert('Please enter a folder name and select an option', 'warning');
     }
