@@ -85,7 +85,7 @@ async function generateFile(sortCriteria) {
     console.log('Fetching files for userId:', userId);
 
     try {
-        const response = await fetch(`http://localhost:5246/api/files/${userId}?page=1&pageSize=200`);
+        const response = await fetch(`http://drivenano.somee.com/api/files/${userId}?page=1&pageSize=200`);
         const data = await response.json();
         console.log(data);
 
@@ -222,7 +222,7 @@ function selectRadio(status) {
 // Eliminar un archivo
 async function deleteFile(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/delete/${fileId}`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -241,7 +241,7 @@ async function deleteFile(fileId) {
 // Añadir un archivo a favoritos
 async function addFavorites(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/${fileId}/favorite`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -259,7 +259,7 @@ async function addFavorites(fileId) {
 // Marcar un archivo como privado
 async function addPrivate(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/${fileId}/private`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/${fileId}/private`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -292,7 +292,7 @@ async function initFileUpload() {
         formData.append('userId', userId);
 
         try {
-            const response = await fetch('http://localhost:5246/api/files', {
+            const response = await fetch('http://drivenano.somee.com/api/files', {
                 method: 'POST',
                 body: formData,
             });
@@ -332,7 +332,7 @@ async function initFileUpdate() {
         };
 
         try {
-            const response = await fetch(`http://localhost:5246/api/file/${fileId}`, {
+            const response = await fetch(`http://drivenano.somee.com/api/file/${fileId}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json",

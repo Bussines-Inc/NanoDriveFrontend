@@ -84,7 +84,7 @@ async function generateFolder(sortCriteria) {
     console.log('Fetching folders for userId:', userId);
 
     try {
-        const response = await fetch(`http://localhost:5246/api/folders/${userId}`);
+        const response = await fetch(`http://drivenano.somee.com/api/folders/${userId}`);
         const data = await response.json();
 
         console.log(data);
@@ -197,7 +197,7 @@ function selectRadio(status) {
 // Eliminar una carpeta
 async function deleteFolder(folderId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/delete`, {
+        const response = await fetch(`http://drivenano.somee.com/api/folder/${folderId}/delete`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -215,7 +215,7 @@ async function deleteFolder(folderId) {
 // Añadir una carpeta a favoritos
 async function addFavourites(folderId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/favourite`, {
+        const response = await fetch(`http://drivenano.somee.com/api/folder/${folderId}/favourite`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -233,7 +233,7 @@ async function addFavourites(folderId) {
 // Marcar una carpeta como privada
 async function addPrivate(folderId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/folder/${folderId}/private`, {
+        const response = await fetch(`http://drivenano.somee.com/api/folder/${folderId}/private`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -255,6 +255,7 @@ async function initFolderUpload() {
     const selectedRadio = document.querySelector('input[name="statusFolder"]:checked');
     const userId = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     const event = new Date().toISOString();
+    console.log(userId);
 
     if (folderName && selectedRadio) {
         const formData = {
@@ -265,7 +266,7 @@ async function initFolderUpload() {
         };
 
         try {
-            const response = await fetch('http://localhost:5246/api/folder', {
+            const response = await fetch(`http://drivenano.somee.com/api/folder/${userId}`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
@@ -310,7 +311,7 @@ async function initFolderUpdate() {
         };
 
         try {
-            const response = await fetch(`http://localhost:5246/api/folder/${folderIdLocal}`, {
+            const response = await fetch(`http://drivenano.somee.com/api/folder/${folderIdLocal}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json",

@@ -69,7 +69,7 @@ async function generateFileFolder() {
     root.innerHTML = ''; // Limpiar el contenido antes de regenerar
 
     try {
-        const response = await fetch(`http://localhost:5246/api/folder/${folderIdLocal}/documents`);
+        const response = await fetch(`http://drivenano.somee.com/api/folder/${folderIdLocal}/documents`);
         const data = await response.json();
         if (data.Folder && data.Folder.Documents && data.Folder.Documents.length > 0) {
             const files = data.Folder.Documents;
@@ -195,7 +195,7 @@ function selectRadio(status) {
 // Eliminar un archivo
 async function deleteFile(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/delete/${fileId}`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/delete/${fileId}`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -213,7 +213,7 @@ async function deleteFile(fileId) {
 // Añadir un archivo a favoritos
 async function addFavourites(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/${fileId}/favorite`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/${fileId}/favorite`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -231,7 +231,7 @@ async function addFavourites(fileId) {
 // Marcar un archivo como privado
 async function addPrivate(fileId) {
     try {
-        const response = await fetch(`http://localhost:5246/api/file/${fileId}/private`, {
+        const response = await fetch(`http://drivenano.somee.com/api/file/${fileId}/private`, {
             method: 'PATCH',
             headers: {
                 "Content-Type": "application/json"
@@ -335,7 +335,7 @@ async function initFileUpload() {
             };
 
             try {
-                const response = await fetch('http://localhost:5246/api/files', {
+                const response = await fetch('http://drivenano.somee.com/api/files', {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json"
@@ -380,7 +380,7 @@ async function initFolderUpload() {
         };
 
         try {
-            const response = await fetch('http://localhost:5246/api/folder', {
+            const response = await fetch('http://drivenano.somee.com/api/folder', {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
@@ -422,7 +422,7 @@ async function initFileFolderUpdate() {
         };
 
         try {
-            const response = await fetch(`http://localhost:5246/api/file/${folderIdLocal}`, {
+            const response = await fetch(`http://drivenano.somee.com/api/file/${folderIdLocal}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json",

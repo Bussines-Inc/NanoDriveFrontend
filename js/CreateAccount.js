@@ -5,7 +5,7 @@ async function createaccount() {
     const password = document.getElementById('passwordNew').value;
 
     try {
-        const response = await fetch('http://localhost:5246/user', {
+        const response = await fetch('http://drivenano.somee.com/user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -12,7 +12,7 @@ document.getElementById('login-btn').addEventListener('click', async function() 
     const password = passwordElement.value;
 
     try {
-        const response = await fetch('http://localhost:5246/login', {
+        const response = await fetch('http://drivenano.somee.com/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
