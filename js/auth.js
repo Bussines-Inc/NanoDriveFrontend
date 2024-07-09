@@ -19,7 +19,12 @@ document.getElementById('login-btn').addEventListener('click', async function() 
             localStorage.setItem('token', data.Token);
             window.location.href = 'Index.html'; // Redirigir al dashboard después del inicio de sesión
             console.log('Login successful');
-        } 
+        }
+        else if (data.Message === 'Email or Password must not be empty')
+            {
+                const errorMessage = data.Message || 'Email or Password must not be empty';
+                document.getElementById('error-message').textContent = errorMessage;
+            } 
         else {
             const errorMessage = data.Message || 'User or password incorrect';
             document.getElementById('error-message').textContent = errorMessage;
@@ -30,4 +35,6 @@ document.getElementById('login-btn').addEventListener('click', async function() 
         document.getElementById('error-message').textContent = 'Failed to connect to the server';
     }
 });
+
+
 

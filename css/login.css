@@ -181,6 +181,10 @@ a:hover{
 	background-position: right;
 }
 
+#singup-btn{
+	background-color: #e9e0e8 !important;
+}
+
 
 @media screen and (max-width: 1050px){
 	.container{
